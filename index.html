@@ -62,26 +62,26 @@
     .brand-left {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 8px;
     }
     .hdr-logo {
-      width: 28px;
-      height: 32px;
+      width: 24px;
+      height: 28px;
       object-fit: contain;
       border-radius: 4px;
       display: none;
     }
     .emblem {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
       background: var(--primary);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 12px;
+      font-size: 11px;
     }
     .region-title {
       font-size: 12px;
@@ -262,8 +262,8 @@
       background: #fafafa;
     }
     .rekap-logo-banner img {
-      width: 32px;
-      height: 36px;
+      width: 28px;
+      height: 32px;
       object-fit: contain;
     }
     .rekap-logo-text {
@@ -320,8 +320,8 @@
       text-align: center;
     }
     .rekap-kop-box img {
-      width: 38px;
-      height: 44px;
+      width: 34px;
+      height: 38px;
       object-fit: contain;
     }
     .rekap-kop-title {
@@ -681,8 +681,8 @@
         text-align: center;
       }
       .print-kop img {
-        width: 44px;
-        height: 50px;
+        width: 40px;
+        height: 46px;
         object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
@@ -1281,7 +1281,7 @@
       const box = document.getElementById('toastBox');
       box.textContent = msg;
       box.classList.add('show');
-      setTimeout(() => box.classList.remove('show'), 4200);
+      setTimeout(() => box.classList.remove('show'), 4500);
     }
 
     function saveSession(user) {
@@ -1451,11 +1451,11 @@
 
       if (logToday && logToday.jenis === 'Harian') {
         if (!logToday.jamKeluar) {
-          if (ctrl.keluarBoleh) {
+          if (ctrl.aktifTombol) {
             btnHarian.textContent = 'Absen Keluar (Scan)';
             btnHarian.classList.add('btn-red');
           } else {
-            btnHarian.textContent = 'Sudah Absen Masuk (Keluar 15:30–21:00)';
+            btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Telah Berakhir (Lewat Jam 21:00)';
             btnHarian.classList.add('btn-gray');
             btnHarian.disabled = true;
           }
@@ -1469,11 +1469,11 @@
         btnHarian.classList.add('btn-gray');
         btnHarian.disabled = true;
       } else {
-        if (ctrl.masukBoleh) {
+        if (ctrl.aktifTombol) {
           btnHarian.textContent = 'Absen Masuk (Scan)';
           btnHarian.classList.add('btn-red');
         } else {
-          btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Masuk Telah Berakhir (Terkunci)';
+          btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Telah Berakhir (Lewat Jam 21:00)';
           btnHarian.classList.add('btn-gray');
           btnHarian.disabled = true;
         }
@@ -1511,11 +1511,12 @@
         .map((it) => {
           const icoMasuk = getStatusBadge(it.statusValidasi, Boolean(it.jamMasuk));
           const icoKeluar = getStatusBadge(it.statusValidasi, Boolean(it.jamKeluar && it.jamKeluar !== '-'));
+          const skorTotal = Number(it.skorMasuk || 0) + Number(it.skorKeluar || 0);
           return `
             <div class="log-card">
               <div class="log-top">
                 <span>${it.tanggal} (${it.jenis})</span>
-                <span>Skor: ${it.statusValidasi === 'Valid' ? (it.skorMasuk + it.skorKeluar) : 0} pts • ${it.statusValidasi}</span>
+                <span>Skor: ${skorTotal} pts • ${it.statusValidasi}</span>
               </div>
               <div class="log-cols">
                 <div style="flex:1;">
@@ -1901,7 +1902,8 @@
       }
 
       isSubmittingScan = true;
-      statusEl.textContent = '⏳ Kode terverifikasi. Sedang memproses absensi...';
+      const labelAksi = aksiScannerAktif.aksi === 'KELUAR' ? 'absen keluar' : 'absen masuk';
+      statusEl.textContent = `⏳ Kode terverifikasi. Memproses ${labelAksi}...`;
       try {
         if (html5QrCode && isScanning) {
           await html5QrCode.stop();
@@ -1909,6 +1911,7 @@
         }
       } catch (e) {}
       modal.classList.remove('show');
+      setLoadingState(true, `⏳ Sedang memproses ${labelAksi}...`);
       ambilLokasiDanKirim(
         aksiScannerAktif.targetIdPerangkat,
         aksiScannerAktif.aksi,
@@ -1959,6 +1962,7 @@
             statusEl.textContent = `⏳ Kode terverifikasi (${hasil}). Memproses ${labelAksi}...`;
             try { await html5QrCode.stop(); } catch (e) {}
             modal.classList.remove('show');
+            setLoadingState(true, `⏳ Sedang memproses ${labelAksi}...`);
             ambilLokasiDanKirim(targetIdPerangkat, aksi, keterangan, hasil);
           },
           () => {}
