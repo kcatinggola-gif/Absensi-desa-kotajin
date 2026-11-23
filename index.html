@@ -1337,8 +1337,8 @@
     function computeClientTombolState(logToday) {
       const now = new Date();
       const mins = now.getHours() * 60 + now.getMinutes();
-      const jamBuka = 6 * 60;      // 06:00
-      const jamTutup = 21 * 60;    // 21:00
+      const jamBuka = 6 * 60;
+      const jamTutup = 21 * 60;
 
       if (logToday && logToday.jenis === 'Harian' && logToday.jamKeluar) {
         if (mins > jamTutup) {
@@ -2555,14 +2555,14 @@
 </head>
 <body>
   <div class="no-print-bar">
-    <button onclick="window.print()" style="padding:10px 18px;font-weight:bold;background:#c62828;color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
+    <button type="button" onclick="window.print()" style="padding:10px 18px;font-weight:bold;background:#c62828;color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
   </div>
   ${kontenBody}
   <script>
     window.addEventListener('load', function () {
       setTimeout(function () {
         try { window.print(); } catch (e) {}
-      }, 250);
+      }, 300);
     });
   <\/script>
 </body>
@@ -2573,66 +2573,61 @@
         const url = URL.createObjectURL(blob);
         const win = window.open(url, '_blank');
         if (!win) {
-          showToast('Izinkan pop-up atau buka tautan di browser Chrome/Safari untuk mencetak/menyimpan PDF.');
-        } else {
-          showToast('📄 Dokumen cetak dibuka. Pilih "Simpan sebagai PDF" / Cetak.');
+          showToast('Pop-up diblokir. Izinkan pop-up atau gunakan menu Cetak di browser.');
+          setTimeout(() => {
+            try { URL.revokeObjectURL(url); } catch (e) {}
+          }, 15000);
+          return false;
         }
+        showToast('📄 Dokumen cetak dibuka. Pilih "Simpan sebagai PDF" / Cetak.');
         setTimeout(() => {
           try { URL.revokeObjectURL(url); } catch (e) {}
         }, 60000);
+        return true;
       } catch (e) {
         showToast('Gagal membuka jendela cetak: ' + e.message);
+        return false;
       }
     }
 
     async function cetakDokumenRekap() {
-      let d = currentRekapData;
-      if (!d || !d.rekap) {
-        try {
+      try {
+        let d = currentRekapData;
+        if (!d || !Array.isArray(d.rekap) || d.rekap.length === 0) {
           setLoadingState(true, '⏳ Menyiapkan data rekap untuk dicetak...');
-          const bulanVal = document.getElementById('rekapBulanSelect').value;
-          const tahunVal = document.getElementById('rekapTahunSelect').value;
+          const bulanEl = document.getElementById('rekapBulanSelect');
+          const tahunEl = document.getElementById('rekapTahunSelect');
+          const bulanVal = bulanEl ? bulanEl.value : '';
+          const tahunVal = tahunEl ? tahunEl.value : '';
           const yearMonthParam = bulanVal && tahunVal ? `${tahunVal}-${bulanVal}` : null;
           const res = await runServer('apiGetRekapBulanan', yearMonthParam);
           setLoadingState(false);
-          d = res && res.data;
-          currentRekapData = d;
-        } catch (err) {
-          setLoadingState(false);
-          showToast('Gagal menyiapkan data cetak: ' + err.message);
+          d = res && res.data ? res.data : null;
+          if (d) currentRekapData = d;
+        }
+
+        if (!d || !Array.isArray(d.rekap) || d.rekap.length === 0) {
+          showToast('Data rekap belum tersedia untuk dicetak.');
           return;
         }
-      }
 
-      if (!d || !d.rekap) {
-        showToast('Data rekap belum tersedia untuk dicetak.');
-        return;
-      }
+        const styleTag = document.getElementById('dynamicPrintPageStyle');
+        if (styleTag) {
+          styleTag.textContent = '@page { margin: 30mm 20mm 30mm 20mm; }';
+        }
 
-      const styleTag = document.getElementById('dynamicPrintPageStyle');
-      if (styleTag) {
-        styleTag.textContent = '@page { margin: 30mm 20mm 30mm 20mm; }';
-      }
+        const printEl = document.getElementById('printArea');
+        if (printEl) {
+          printEl.innerHTML = susunKontenCetakHtml_(d);
+        }
 
-      const printEl = document.getElementById('printArea');
-      printEl.innerHTML = susunKontenCetakHtml_(d);
-
-      const ua = navigator.userAgent || '';
-      const isAndroidWebView = /wv|webview|Version\/[\d.]+.*Chrome\/[\d.]+ Mobile/i.test(ua) && !/Chrome\/[\d.]+ Mobile Safari/i.test(ua);
-
-      if (isAndroidWebView) {
-        bukaJendelaCetakFallback_(d);
-        return;
-      }
-
-      try {
-        if (typeof window.print === 'function') {
+        const terbukaDiTabBaru = bukaJendelaCetakFallback_(d);
+        if (!terbukaDiTabBaru && typeof window.print === 'function') {
           window.print();
-        } else {
-          bukaJendelaCetakFallback_(d);
         }
       } catch (err) {
-        bukaJendelaCetakFallback_(d);
+        setLoadingState(false);
+        showToast('Gagal menyiapkan data cetak: ' + (err && err.message ? err.message : err));
       }
     }
 
