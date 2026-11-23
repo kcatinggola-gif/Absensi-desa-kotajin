@@ -64,29 +64,19 @@
       align-items: center;
       gap: 8px;
     }
-    .hdr-logo-frame {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      background: #fef08a;
-      border: 1.5px solid #eab308;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
     .hdr-logo {
-      width: 17px;
-      height: 19px;
+      width: 24px;
+      height: 28px;
       object-fit: contain;
+      border-radius: 4px;
+      display: none;
     }
     .emblem {
       width: 24px;
       height: 24px;
       border-radius: 6px;
-      background: #fef08a;
-      border: 1.5px solid #eab308;
-      color: #854d0e;
+      background: var(--primary);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -267,24 +257,13 @@
       gap: 8px;
       padding: 8px 12px;
       margin-bottom: 12px;
-      border: 1px solid #eab308;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: #fef9c3;
-    }
-    .rekap-logo-frame {
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      background: #fef08a;
-      border: 1px solid #ca8a04;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      background: #ffffff;
     }
     .rekap-logo-banner img {
-      width: 19px;
-      height: 21px;
+      width: 26px;
+      height: 30px;
       object-fit: contain;
     }
     .rekap-logo-text {
@@ -340,20 +319,9 @@
       margin-bottom: 10px;
       text-align: center;
     }
-    .rekap-kop-frame {
-      width: 34px;
-      height: 34px;
-      border-radius: 6px;
-      background: #fef08a;
-      border: 1px solid #ca8a04;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
     .rekap-kop-box img {
-      width: 22px;
-      height: 25px;
+      width: 34px;
+      height: 38px;
       object-fit: contain;
     }
     .rekap-kop-title {
@@ -712,20 +680,9 @@
         margin-bottom: 10px;
         text-align: center;
       }
-      .print-kop-frame {
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
-        background: #fef08a;
-        border: 1px solid #ca8a04;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
       .print-kop img {
-        width: 24px;
-        height: 27px;
+        width: 40px;
+        height: 46px;
         object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
@@ -878,9 +835,7 @@
   <div class="app-container">
     <div class="topbar">
       <div class="brand-left">
-        <div class="hdr-logo-frame" id="hdrLogoFrame">
-          <img id="hdrLogoImg" class="hdr-logo" alt="Logo Kabupaten Gorontalo Utara" />
-        </div>
+        <img id="hdrLogoImg" class="hdr-logo" alt="Logo Kabupaten Gorontalo Utara" />
         <div class="emblem" id="hdrLogoFallback">DS</div>
         <div>
           <div class="region-title" id="hdrKabupaten">Pemerintah Desa</div>
@@ -1107,9 +1062,7 @@
     <!-- HALAMAN REKAP ABSEN -->
     <section class="page" id="page-rekap">
       <div class="rekap-logo-banner" id="rekapLogoBanner">
-        <div class="rekap-logo-frame">
-          <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
-        </div>
+        <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
         <div class="rekap-logo-text" id="rekapLogoTitle">Pemerintah Kabupaten Gorontalo Utara</div>
       </div>
 
@@ -1223,17 +1176,59 @@
         : 'Belum ada foto diambil (Kamera + Timestamp, Lokasi & Koordinat)';
     }
 
-    function sinkronkanIconAplikasi(urlLogo) {
+    function buatIconAplikasiBerlatarPutih(urlLogo, ukuran = 192) {
+      return new Promise((resolve) => {
+        if (!urlLogo || !urlLogo.trim()) {
+          resolve('');
+          return;
+        }
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = ukuran;
+            canvas.height = ukuran;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, ukuran, ukuran);
+
+            const maxBox = Math.round(ukuran * 0.56);
+            const ratio = Math.min(maxBox / (img.width || 1), maxBox / (img.height || 1));
+            const drawW = Math.max(1, Math.round((img.width || maxBox) * ratio));
+            const drawH = Math.max(1, Math.round((img.height || maxBox) * ratio));
+            const drawX = Math.round((ukuran - drawW) / 2);
+            const drawY = Math.round((ukuran - drawH) / 2);
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, drawX, drawY, drawW, drawH);
+            resolve(canvas.toDataURL('image/png'));
+          } catch (e) {
+            resolve(urlLogo);
+          }
+        };
+        img.onerror = () => resolve(urlLogo);
+        img.src = urlLogo;
+      });
+    }
+
+    async function sinkronkanIconAplikasi(urlLogo) {
       if (!urlLogo || !urlLogo.trim()) return;
       const favicon = document.getElementById('appFavicon');
       const touchIcon = document.getElementById('appTouchIcon');
       if (favicon) favicon.href = urlLogo;
       if (touchIcon) touchIcon.href = urlLogo;
+
+      const iconPutih = await buatIconAplikasiBerlatarPutih(urlLogo.trim(), 192);
+      if (iconPutih) {
+        if (favicon) favicon.href = iconPutih;
+        if (touchIcon) touchIcon.href = iconPutih;
+      }
     }
 
     function terapkanLogoPemda(kabupatenNama) {
       const hasLogo = Boolean(LOGO_GORONTALO_UTARA_BASE64 && LOGO_GORONTALO_UTARA_BASE64.trim());
-      const hdrFrame = document.getElementById('hdrLogoFrame');
       const hdrImg = document.getElementById('hdrLogoImg');
       const hdrFb = document.getElementById('hdrLogoFallback');
       const rekapBanner = document.getElementById('rekapLogoBanner');
@@ -1246,15 +1241,19 @@
 
       if (hasLogo) {
         sinkronkanIconAplikasi(LOGO_GORONTALO_UTARA_BASE64.trim());
-        if (hdrImg) hdrImg.src = LOGO_GORONTALO_UTARA_BASE64;
-        if (hdrFrame) hdrFrame.style.display = 'flex';
-        if (hdrFb) hdrFb.style.display = 'none';
+        if (hdrImg) {
+          hdrImg.src = LOGO_GORONTALO_UTARA_BASE64;
+          hdrImg.style.display = 'block';
+        }
+        if (hdrFb) {
+          hdrFb.style.display = 'none';
+        }
         if (rekapImg && rekapBanner) {
           rekapImg.src = LOGO_GORONTALO_UTARA_BASE64;
           rekapBanner.style.display = 'flex';
         }
       } else {
-        if (hdrFrame) hdrFrame.style.display = 'none';
+        if (hdrImg) hdrImg.style.display = 'none';
         if (hdrFb) hdrFb.style.display = 'flex';
         if (rekapBanner) rekapBanner.style.display = 'none';
       }
@@ -2246,7 +2245,7 @@
         .join('');
 
       const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<div class="rekap-kop-frame"><img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" /></div>`
+        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" />`
         : '';
 
       wrap.innerHTML = `
@@ -2392,7 +2391,7 @@
         .join('');
 
       const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<div class="print-kop-frame"><img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" /></div>`
+        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" />`
         : '';
 
       const namaKades = p.namaKepalaDesa || '_______________________';
