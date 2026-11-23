@@ -64,19 +64,29 @@
       align-items: center;
       gap: 8px;
     }
-    .hdr-logo {
-      width: 24px;
+    .hdr-logo-frame {
+      width: 28px;
       height: 28px;
-      object-fit: contain;
-      border-radius: 4px;
+      border-radius: 7px;
+      background: #fef08a;
+      border: 1.5px solid #eab308;
       display: none;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .hdr-logo {
+      width: 17px;
+      height: 19px;
+      object-fit: contain;
     }
     .emblem {
       width: 24px;
       height: 24px;
       border-radius: 6px;
-      background: var(--primary);
-      color: #fff;
+      background: #fef08a;
+      border: 1.5px solid #eab308;
+      color: #854d0e;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -257,13 +267,24 @@
       gap: 8px;
       padding: 8px 12px;
       margin-bottom: 12px;
-      border: 1px solid var(--border);
+      border: 1px solid #eab308;
       border-radius: 10px;
-      background: #fafafa;
+      background: #fef9c3;
+    }
+    .rekap-logo-frame {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: #fef08a;
+      border: 1px solid #ca8a04;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
     .rekap-logo-banner img {
-      width: 28px;
-      height: 32px;
+      width: 19px;
+      height: 21px;
       object-fit: contain;
     }
     .rekap-logo-text {
@@ -319,9 +340,20 @@
       margin-bottom: 10px;
       text-align: center;
     }
-    .rekap-kop-box img {
+    .rekap-kop-frame {
       width: 34px;
-      height: 38px;
+      height: 34px;
+      border-radius: 6px;
+      background: #fef08a;
+      border: 1px solid #ca8a04;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rekap-kop-box img {
+      width: 22px;
+      height: 25px;
       object-fit: contain;
     }
     .rekap-kop-title {
@@ -680,9 +712,20 @@
         margin-bottom: 10px;
         text-align: center;
       }
+      .print-kop-frame {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        background: #fef08a;
+        border: 1px solid #ca8a04;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
       .print-kop img {
-        width: 40px;
-        height: 46px;
+        width: 24px;
+        height: 27px;
         object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
@@ -746,7 +789,7 @@
       }
       .print-footer-wrap {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: flex-start;
         margin-top: 8px;
         font-size: 9.5px;
@@ -835,7 +878,9 @@
   <div class="app-container">
     <div class="topbar">
       <div class="brand-left">
-        <img id="hdrLogoImg" class="hdr-logo" alt="Logo Kabupaten Gorontalo Utara" />
+        <div class="hdr-logo-frame" id="hdrLogoFrame">
+          <img id="hdrLogoImg" class="hdr-logo" alt="Logo Kabupaten Gorontalo Utara" />
+        </div>
         <div class="emblem" id="hdrLogoFallback">DS</div>
         <div>
           <div class="region-title" id="hdrKabupaten">Pemerintah Desa</div>
@@ -1062,7 +1107,9 @@
     <!-- HALAMAN REKAP ABSEN -->
     <section class="page" id="page-rekap">
       <div class="rekap-logo-banner" id="rekapLogoBanner">
-        <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
+        <div class="rekap-logo-frame">
+          <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
+        </div>
         <div class="rekap-logo-text" id="rekapLogoTitle">Pemerintah Kabupaten Gorontalo Utara</div>
       </div>
 
@@ -1186,6 +1233,7 @@
 
     function terapkanLogoPemda(kabupatenNama) {
       const hasLogo = Boolean(LOGO_GORONTALO_UTARA_BASE64 && LOGO_GORONTALO_UTARA_BASE64.trim());
+      const hdrFrame = document.getElementById('hdrLogoFrame');
       const hdrImg = document.getElementById('hdrLogoImg');
       const hdrFb = document.getElementById('hdrLogoFallback');
       const rekapBanner = document.getElementById('rekapLogoBanner');
@@ -1198,19 +1246,15 @@
 
       if (hasLogo) {
         sinkronkanIconAplikasi(LOGO_GORONTALO_UTARA_BASE64.trim());
-        if (hdrImg) {
-          hdrImg.src = LOGO_GORONTALO_UTARA_BASE64;
-          hdrImg.style.display = 'block';
-        }
-        if (hdrFb) {
-          hdrFb.style.display = 'none';
-        }
+        if (hdrImg) hdrImg.src = LOGO_GORONTALO_UTARA_BASE64;
+        if (hdrFrame) hdrFrame.style.display = 'flex';
+        if (hdrFb) hdrFb.style.display = 'none';
         if (rekapImg && rekapBanner) {
           rekapImg.src = LOGO_GORONTALO_UTARA_BASE64;
           rekapBanner.style.display = 'flex';
         }
       } else {
-        if (hdrImg) hdrImg.style.display = 'none';
+        if (hdrFrame) hdrFrame.style.display = 'none';
         if (hdrFb) hdrFb.style.display = 'flex';
         if (rekapBanner) rekapBanner.style.display = 'none';
       }
@@ -1218,6 +1262,94 @@
 
     function setAksiScannerAktif(aksi, targetIdPerangkat, keterangan) {
       aksiScannerAktif = { aksi, targetIdPerangkat, keterangan };
+    }
+
+    function computeClientTombolState(logToday) {
+      const now = new Date();
+      const mins = now.getHours() * 60 + now.getMinutes();
+      const jamBuka = 6 * 60;      // 06:00
+      const jamTutup = 21 * 60;    // 21:00
+
+      if (logToday && logToday.jenis === 'Harian' && logToday.jamKeluar) {
+        if (mins > jamTutup) {
+          return { text: 'Waktu absen hari ini sudah selesai', disabled: true };
+        }
+        if (mins < jamBuka) {
+          return { text: 'Belum waktu absen', disabled: true };
+        }
+        return { text: 'Anda sudah absen hari ini', disabled: true };
+      }
+
+      if (mins > jamTutup) {
+        return { text: 'Waktu absen hari ini sudah selesai', disabled: true };
+      }
+
+      if (mins < jamBuka) {
+        return { text: 'Belum waktu absen', disabled: true };
+      }
+
+      if (logToday && logToday.jenis === 'Harian' && !logToday.jamKeluar) {
+        return { text: 'Absen Keluar (Scan)', disabled: false };
+      }
+
+      if (logToday) {
+        return { text: `Tercatat: ${logToday.jenis}`, disabled: true };
+      }
+
+      return { text: 'Absen Masuk (Scan)', disabled: false };
+    }
+
+    function terapkanTombolAbsenHarian(data) {
+      const btnHarian = document.getElementById('btnAbsenHarian');
+      if (!btnHarian) return;
+      const logToday = data && data.logHariIni;
+      const ctrl = (data && data.kontrolTombol) || {};
+      const clientState = computeClientTombolState(logToday);
+
+      btnHarian.className = 'btn-action';
+      btnHarian.disabled = false;
+
+      if (logToday && logToday.jenis === 'Harian' && logToday.jamKeluar) {
+        btnHarian.textContent = clientState.text;
+        btnHarian.classList.add('btn-gray');
+        btnHarian.disabled = true;
+        return;
+      }
+
+      if (clientState.disabled) {
+        btnHarian.textContent = clientState.text;
+        btnHarian.classList.add('btn-gray');
+        btnHarian.disabled = true;
+        return;
+      }
+
+      if (logToday && logToday.jenis === 'Harian' && !logToday.jamKeluar) {
+        if (ctrl.aktifTombol === false && ctrl.teksTombol) {
+          btnHarian.textContent = ctrl.teksTombol;
+          btnHarian.classList.add('btn-gray');
+          btnHarian.disabled = true;
+        } else {
+          btnHarian.textContent = 'Absen Keluar (Scan)';
+          btnHarian.classList.add('btn-red');
+        }
+        return;
+      }
+
+      if (logToday) {
+        btnHarian.textContent = `Tercatat: ${logToday.jenis}`;
+        btnHarian.classList.add('btn-gray');
+        btnHarian.disabled = true;
+        return;
+      }
+
+      if (ctrl.aktifTombol === false && ctrl.teksTombol) {
+        btnHarian.textContent = ctrl.teksTombol;
+        btnHarian.classList.add('btn-gray');
+        btnHarian.disabled = true;
+      } else {
+        btnHarian.textContent = 'Absen Masuk (Scan)';
+        btnHarian.classList.add('btn-red');
+      }
     }
 
     async function runServer(fnName, ...args) {
@@ -1442,42 +1574,7 @@
       document.getElementById('lblTanggal').textContent = data.now.tanggal;
       document.getElementById('lblJam').textContent = data.now.jamMenit;
 
-      const btnHarian = document.getElementById('btnAbsenHarian');
-      const ctrl = data.kontrolTombol || {};
-      const logToday = data.logHariIni;
-
-      btnHarian.className = 'btn-action';
-      btnHarian.disabled = false;
-
-      if (logToday && logToday.jenis === 'Harian') {
-        if (!logToday.jamKeluar) {
-          if (ctrl.aktifTombol) {
-            btnHarian.textContent = 'Absen Keluar (Scan)';
-            btnHarian.classList.add('btn-red');
-          } else {
-            btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Telah Berakhir (Lewat Jam 21:00)';
-            btnHarian.classList.add('btn-gray');
-            btnHarian.disabled = true;
-          }
-        } else {
-          btnHarian.textContent = 'Anda telah melakukan absen hari ini';
-          btnHarian.classList.add('btn-gray');
-          btnHarian.disabled = true;
-        }
-      } else if (logToday) {
-        btnHarian.textContent = `Tercatat: ${logToday.jenis}`;
-        btnHarian.classList.add('btn-gray');
-        btnHarian.disabled = true;
-      } else {
-        if (ctrl.aktifTombol) {
-          btnHarian.textContent = 'Absen Masuk (Scan)';
-          btnHarian.classList.add('btn-red');
-        } else {
-          btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Telah Berakhir (Lewat Jam 21:00)';
-          btnHarian.classList.add('btn-gray');
-          btnHarian.disabled = true;
-        }
-      }
+      terapkanTombolAbsenHarian(data);
 
       renderDetailBulanan(data.detailBulanan || []);
 
@@ -1777,6 +1874,24 @@
                 ? `✅ Absen keluar berhasil! ${res.message}`
                 : `✅ ${res.message}`;
             showToast(konfirmasiBaku);
+
+            if (targetIdPerangkat === currentUser.idPerangkat && currentDashboard) {
+              const nowHHMM = new Date().toTimeString().slice(0, 5);
+              if (aksi === 'MASUK') {
+                currentDashboard.logHariIni = res.logHariIni || {
+                  jenis: 'Harian',
+                  jamMasuk: nowHHMM,
+                  jamKeluar: ''
+                };
+              } else if (aksi === 'KELUAR') {
+                const prev = currentDashboard.logHariIni || { jenis: 'Harian', jamMasuk: '' };
+                currentDashboard.logHariIni = res.logHariIni || Object.assign({}, prev, {
+                  jenis: 'Harian',
+                  jamKeluar: nowHHMM
+                });
+              }
+              terapkanTombolAbsenHarian(currentDashboard);
+            }
           } else {
             showToast(`⚠️ ${res.message}`);
           }
@@ -2131,7 +2246,7 @@
         .join('');
 
       const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" />`
+        ? `<div class="rekap-kop-frame"><img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" /></div>`
         : '';
 
       wrap.innerHTML = `
@@ -2277,7 +2392,7 @@
         .join('');
 
       const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" />`
+        ? `<div class="print-kop-frame"><img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" /></div>`
         : '';
 
       const namaKades = p.namaKepalaDesa || '_______________________';
@@ -2326,7 +2441,6 @@
             <div><span class="sym-alpa">A</span> : Alpa / Tidak Absen</div>
             <div><b>%</b> : Persentase Poin Valid</div>
           </div>
-          <div>Margin Halaman: Atas 3 cm, Bawah 3 cm, Kiri 2 cm, Kanan 2 cm</div>
         </div>
 
         <div class="print-ttd-grid">
