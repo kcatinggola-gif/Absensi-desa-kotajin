@@ -722,10 +722,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 12px;
         border-bottom: 2px solid #000000;
         padding-bottom: 8px;
         margin-bottom: 10px;
         text-align: center;
+      }
+      .print-kop img {
+        width: 40px;
+        height: 46px;
+        object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
         font-size: 12px;
@@ -1299,9 +1305,15 @@
     }
 
     function terapkanLogoPemda(kabupatenNama) {
+      const kabClean = String(kabupatenNama || 'Gorontalo Utara').replace(/^kabupaten\s+|^kab\.?\s+/i, '').trim() || 'Gorontalo Utara';
       const hasLogo = Boolean(LOGO_GORONTALO_UTARA_BASE64 && LOGO_GORONTALO_UTARA_BASE64.trim());
       const hdrImg = document.getElementById('hdrLogoImg');
       const hdrFb = document.getElementById('hdrLogoFallback');
+      const hdrKab = document.getElementById('hdrKabupaten');
+
+      if (hdrKab) {
+        hdrKab.textContent = `Kab. ${kabClean}`;
+      }
 
       if (hasLogo) {
         sinkronkanIconAplikasi(LOGO_GORONTALO_UTARA_BASE64.trim());
@@ -1655,9 +1667,8 @@
       const desaBersih = String(desa).replace(/^desa\s+/i, '').trim() || 'Desa';
       const kecBersih = String(kec).replace(/^kecamatan\s+|^kec\.?\s+/i, '').trim() || 'Atinggola';
 
-      document.getElementById('hdrKabupaten').textContent = `Kab. ${kab}`;
-      document.getElementById('hdrDesa').textContent = `Desa ${desaBersih} - Kec. ${kecBersih}`;
       terapkanLogoPemda(kab);
+      document.getElementById('hdrDesa').textContent = `Desa ${desaBersih} - Kec. ${kecBersih}`;
       perbaruiRunningTextDesa(desaBersih);
 
       document.getElementById('berandaUserInfo').textContent =
@@ -2405,6 +2416,10 @@
 
     function susunKontenCetakHtml_(d) {
       const p = d.pengaturan || {};
+      const kabUpper = String(p.kabupaten || 'GORONTALO UTARA')
+        .replace(/^kabupaten\s+|^kab\.?\s+/i, '')
+        .trim()
+        .toUpperCase() || 'GORONTALO UTARA';
       const kecUpper = String(p.kecamatan || 'ATINGGOLA').toUpperCase();
       const desaTitle = String(p.namaDesa || 'Monggupo').trim();
       const desaUpper = desaTitle.toUpperCase();
@@ -2437,12 +2452,18 @@
         })
         .join('');
 
+      const logoHtml = LOGO_GORONTALO_UTARA_BASE64
+        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" />`
+        : '';
+
       const namaKades = p.namaKepalaDesa || '_______________________';
       const namaSekdes = p.namaSekretarisDesa || '_______________________';
 
       return `
         <div class="print-kop">
+          ${logoHtml}
           <div class="print-kop-text">
+            <div>PEMERINTAH KABUPATEN ${kabUpper}</div>
             <div>KECAMATAN ${kecUpper}</div>
             <div>DESA ${desaUpper}</div>
           </div>
@@ -2503,14 +2524,18 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daftar Hadir ${d.bulanTahun || ''}</title>
   <style>
     @page { margin: 30mm 20mm 30mm 20mm; }
     body { font-family: Arial, sans-serif; color: #000; background: #fff; margin: 0; padding: 12px; font-size: 10px; }
-    .print-kop { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+    .print-kop { display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+    .print-kop img { width: 40px; height: 46px; object-fit: contain; }
     .print-kop-text div:nth-child(1) { font-size: 12px; font-weight: 800; text-transform: uppercase; }
-    .print-kop-text div:nth-child(2) { font-size: 13px; font-weight: 800; text-transform: uppercase; }
+    .print-kop-text div:nth-child(2) { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .print-kop-text div:nth-child(3) { font-size: 13px; font-weight: 800; text-transform: uppercase; }
     .print-judul { text-align: center; font-size: 11px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+    .print-table-wrap { width: 100%; overflow-x: auto; }
     table.rekap-cetak { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
     table.rekap-cetak th, table.rekap-cetak td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 7.5px; }
     table.rekap-cetak th.col-nama, table.rekap-cetak td.col-nama,
@@ -2530,14 +2555,14 @@
 </head>
 <body>
   <div class="no-print-bar">
-    <button onclick="window.print()" style="padding:8px 16px;font-weight:bold;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
+    <button onclick="window.print()" style="padding:10px 18px;font-weight:bold;background:#c62828;color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
   </div>
   ${kontenBody}
   <script>
     window.addEventListener('load', function () {
       setTimeout(function () {
         try { window.print(); } catch (e) {}
-      }, 200);
+      }, 250);
     });
   <\/script>
 </body>
@@ -2548,8 +2573,13 @@
         const url = URL.createObjectURL(blob);
         const win = window.open(url, '_blank');
         if (!win) {
-          showToast('Izinkan pop-up / buka di browser eksternal untuk menyimpan PDF.');
+          showToast('Izinkan pop-up atau buka tautan di browser Chrome/Safari untuk mencetak/menyimpan PDF.');
+        } else {
+          showToast('📄 Dokumen cetak dibuka. Pilih "Simpan sebagai PDF" / Cetak.');
         }
+        setTimeout(() => {
+          try { URL.revokeObjectURL(url); } catch (e) {}
+        }, 60000);
       } catch (e) {
         showToast('Gagal membuka jendela cetak: ' + e.message);
       }
@@ -2587,13 +2617,17 @@
       const printEl = document.getElementById('printArea');
       printEl.innerHTML = susunKontenCetakHtml_(d);
 
+      const ua = navigator.userAgent || '';
+      const isAndroidWebView = /wv|webview|Version\/[\d.]+.*Chrome\/[\d.]+ Mobile/i.test(ua) && !/Chrome\/[\d.]+ Mobile Safari/i.test(ua);
+
+      if (isAndroidWebView) {
+        bukaJendelaCetakFallback_(d);
+        return;
+      }
+
       try {
         if (typeof window.print === 'function') {
           window.print();
-          const isWebView = /wv|webview/i.test(navigator.userAgent || '');
-          if (isWebView) {
-            bukaJendelaCetakFallback_(d);
-          }
         } else {
           bukaJendelaCetakFallback_(d);
         }
