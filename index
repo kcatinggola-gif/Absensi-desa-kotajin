@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#c62828" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="color-scheme" content="light" />
+  <link rel="manifest" href="./manifest.json" />
+  <link id="appFavicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1LEasXy8v_54DofJ-fLy-_o7_laQ7WwDI" />
+  <link id="appTouchIcon" rel="apple-touch-icon" sizes="180x180" href="https://lh3.googleusercontent.com/d/1LEasXy8v_54DofJ-fLy-_o7_laQ7WwDI" />
+  <title>Absensi Perangkat Desa</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <style id="dynamicPrintPageStyle">@page { size: portrait; margin: 10mm; }</style>
+  <style>
+    :root {
+      color-scheme: light;
+      --primary: #c62828;
+      --primary-dark: #8e0000;
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #2e7d32;
+      --warning: #ed6c02;
+      --danger: #d32f2f;
+      --disabled: #9ca3af;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 76px;
+    }
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #ffffff;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hdr-logo {
+      width: 36px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 4px;
+      display: none;
+    }
+    .emblem {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .region-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .region-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .btn-logout {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .page {
+      display: none;
+      padding: 16px;
+    }
+    .page.active {
+      display: block;
+    }
+    .login-box {
+      padding: 24px 16px;
+    }
+    .login-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      background: #fff;
+    }
+    .login-card h2 {
+      font-size: 18px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .login-card p {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .form-control {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #ffffff;
+      color: #1f2937;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .quick-tile {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(198, 40, 40, 0.22);
+    }
+    .quick-tile:active {
+      transform: scale(0.98);
+    }
+    .quick-tile .icon {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .quick-tile .label {
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .banner-red {
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .banner-red h3 {
+      font-size: 15px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .banner-red p {
+      font-size: 12px;
+      text-align: center;
+      opacity: 0.92;
+    }
+    .news-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    .news-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: #fee2e2;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .news-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .news-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .news-body {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.45;
+    }
+    .screen-heading {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .screen-heading h2 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+    .screen-heading .user-line {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .rekap-logo-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fafafa;
+    }
+    .rekap-logo-banner img {
+      width: 42px;
+      height: 48px;
+      object-fit: contain;
+    }
+    .rekap-logo-text {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .print-actions-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f9fafb;
+      margin-bottom: 12px;
+    }
+    .print-actions-title {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .print-btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn-orient {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-portrait {
+      background: var(--primary);
+    }
+    .btn-landscape {
+      background: #1f2937;
+    }
+    .rekap-table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .rekap-kop-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-bottom: 2px solid #1f2937;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .rekap-kop-box img {
+      width: 44px;
+      height: 50px;
+      object-fit: contain;
+    }
+    .rekap-kop-title {
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+      text-transform: uppercase;
+    }
+    table.rekap-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+      min-width: 680px;
+    }
+    table.rekap-matrix th,
+    table.rekap-matrix td {
+      border: 1px solid #374151;
+      padding: 4px 3px;
+      text-align: center;
+    }
+    table.rekap-matrix th.sticky-col,
+    table.rekap-matrix td.sticky-col {
+      text-align: left;
+      padding-left: 5px;
+      white-space: nowrap;
+    }
+    .sym-hadir { color: #15803d; font-weight: 800; }
+    .sym-sakit { color: #d97706; font-weight: 800; }
+    .sym-izin  { color: #2563eb; font-weight: 800; }
+    .sym-alpa  { color: #dc2626; font-weight: 800; }
+    .rekap-ttd-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      font-size: 10.5px;
+      text-align: center;
+    }
+    .rekap-ttd-col {
+      flex: 1;
+    }
+    .rekap-ttd-line {
+      margin-top: 38px;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    .summary-box {
+      border: 1px solid #e5b8b8;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: #ffffff;
+    }
+    .summary-box h4 {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .circle-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .circle-pct {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .clock-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .action-group {
+      margin-bottom: 14px;
+    }
+    .action-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .camera-trigger-box {
+      border: 1px dashed #9ca3af;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    .btn-kamera-foto {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #1f2937;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-kamera-foto:active {
+      background: #f3f4f6;
+    }
+    .foto-status-text {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 6px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .btn-action {
+      width: 100%;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .btn-red {
+      background: var(--primary);
+    }
+    .btn-gray {
+      background: var(--disabled);
+      cursor: not-allowed;
+    }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding: 10px;
+      background: #fafafa;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-ico {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .bg-valid { background: var(--success); }
+    .bg-invalid { background: var(--danger); }
+    .bg-pending { background: var(--warning); }
+    .bg-none { background: #ef4444; }
+    .log-card {
+      border: 1px solid #e5b8b8;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    .log-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .log-cols {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+    .log-col-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .log-time {
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: #374151;
+    }
+    .validator-preview-box {
+      margin: 8px 0 10px;
+      padding: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+      text-align: center;
+    }
+    .validator-preview-box img {
+      width: 100%;
+      max-height: 320px;
+      border-radius: 6px;
+      object-fit: contain;
+      border: 1px solid #d1d5db;
+    }
+    .rekap-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rekap-pct {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary);
+      text-align: right;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+    }
+    .scanner-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.85);
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .scanner-modal.show {
+      display: flex;
+    }
+    .scanner-card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+    .scanner-title {
+      font-size: 16px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .scanner-sub {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    #qrReaderBox {
+      width: 100%;
+      min-height: 240px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #111827;
+      margin-bottom: 12px;
+    }
+    .scanner-status {
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+      min-height: 18px;
+      margin-bottom: 12px;
+    }
+    #printArea {
+      display: none;
+    }
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding-bottom: 0 !important;
+      }
+      .app-container, .topbar, .bottom-nav, .toast, .scanner-modal {
+        display: none !important;
+      }
+      #printArea {
+        display: block !important;
+        width: 100%;
+        color: #000000;
+        background: #ffffff;
+        padding: 4px 6px;
+        font-size: 10px;
+      }
+      .print-kop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        border-bottom: 2px solid #000000;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      .print-kop img {
+        width: 56px;
+        height: 64px;
+        object-fit: contain;
+      }
+      .print-kop-text div:nth-child(1) {
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .print-kop-text div:nth-child(2) {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .print-kop-text div:nth-child(3) {
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .print-judul {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .print-table-wrap {
+        width: 100%;
+        overflow: visible;
+      }
+      table.rekap-cetak {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+        table-layout: auto;
+      }
+      table.rekap-cetak th,
+      table.rekap-cetak td {
+        border: 1px solid #000000;
+        padding: 3px 2px;
+        text-align: center;
+        font-size: 8px;
+      }
+      table.rekap-cetak td.col-nama,
+      table.rekap-cetak th.col-nama {
+        text-align: left;
+        padding-left: 4px;
+        white-space: nowrap;
+      }
+      table.rekap-cetak td.col-jabatan,
+      table.rekap-cetak th.col-jabatan {
+        text-align: left;
+        padding-left: 4px;
+        white-space: nowrap;
+      }
+      .tanda-centang {
+        color: #15803d;
+        font-weight: 800;
+      }
+      .tanda-silang {
+        color: #dc2626;
+        font-weight: 800;
+      }
+      .print-footer-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 8px;
+        font-size: 9.5px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .print-legenda {
+        line-height: 1.5;
+      }
+      .print-ttd-grid {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 14px;
+        text-align: center;
+        font-size: 10px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .print-ttd-box {
+        flex: 1;
+      }
+      .print-ttd-nama {
+        margin-top: 46px;
+        font-weight: 800;
+        text-decoration: underline;
+      }
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 58px;
+      background: var(--primary);
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      z-index: 30;
+    }
+    .bottom-nav.visible {
+      display: grid;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      color: #ffffff;
+      font-weight: 800;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .toast {
+      position: fixed;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 440px;
+      width: calc(100% - 24px);
+      background: #111827;
+      color: #ffffff;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 70;
+      display: none;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+    .toast.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="topbar">
+      <div class="brand-left">
+        <img id="hdrLogoImg" class="hdr-logo" alt="Logo Kabupaten Gorontalo Utara" />
+        <div class="emblem" id="hdrLogoFallback">DS</div>
+        <div>
+          <div class="region-title" id="hdrKabupaten">Pemerintah Desa</div>
+          <div class="region-sub" id="hdrDesa">Sistem Absensi Perangkat</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout" style="display:none;" onclick="logoutUser()">Keluar</button>
+    </div>
+
+    <div class="toast" id="toastBox"></div>
+
+    <!-- MODAL KAMERA SCAN BARCODE / QR -->
+    <div class="scanner-modal" id="scannerModal">
+      <div class="scanner-card">
+        <div class="scanner-title" id="scannerTitle">Pindai Barcode / QR Absensi</div>
+        <div class="scanner-sub">Arahkan kamera ke kode bersama kantor desa untuk mencatat absen.</div>
+        <div id="qrReaderBox"></div>
+        <div class="scanner-status" id="scannerStatus">Menyiapkan kamera...</div>
+        <input
+          type="file"
+          id="inputFotoQr"
+          accept="image/*"
+          capture="environment"
+          style="display:none;"
+          onchange="pindaiDariFotoInput(event)"
+        />
+        <button
+          type="button"
+          class="btn-action btn-red"
+          style="margin-bottom:8px;"
+          onclick="document.getElementById('inputFotoQr').click()"
+        >
+          📷 Ambil Foto/Gambar Kode
+        </button>
+        <button type="button" class="btn-action btn-gray" style="cursor:pointer;" onclick="tutupScannerModal()">Batal & Tutup Kamera</button>
+      </div>
+    </div>
+
+    <!-- HALAMAN LOGIN -->
+    <section class="page active" id="page-login">
+      <div class="login-box">
+        <div class="login-card">
+          <h2>Masuk Absensi Perangkat</h2>
+          <p>Pilih nama perangkat desa terdaftar dan masukkan PIN Anda.</p>
+
+          <div class="form-group">
+            <label for="loginSelect">Nama Perangkat Desa</label>
+            <select id="loginSelect" class="form-control">
+              <option value="">Memuat daftar perangkat...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPin">PIN</label>
+            <input type="password" id="loginPin" class="form-control" placeholder="Masukkan PIN" />
+          </div>
+
+          <button class="btn-action btn-red" onclick="handleLogin()">Masuk Aplikasi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- HALAMAN BERANDA -->
+    <section class="page" id="page-beranda">
+      <div class="quick-grid">
+        <button class="quick-tile" onclick="navigateTo('page-absen')">
+          <div class="icon">☰</div>
+          <div class="label">Absensi</div>
+        </button>
+        <button class="quick-tile" onclick="navigateTo('page-rekap')">
+          <div class="icon">📄</div>
+          <div class="label">Rekap Absen</div>
+        </button>
+        <button class="quick-tile" onclick="navigateTo('page-teman')">
+          <div class="icon">👥</div>
+          <div class="label">Absen Teman</div>
+        </button>
+      </div>
+
+      <div id="adminBannerWrap" style="display:none; margin-bottom:14px;">
+        <button class="btn-action btn-red" onclick="navigateTo('page-validasi')">
+          ✓ Panel Validasi Admin (Kades / Sekdes)
+        </button>
+      </div>
+
+      <div class="banner-red">
+        <h3>Pemberitahuan</h3>
+        <p id="berandaUserInfo">-</p>
+      </div>
+
+      <div class="banner-red" style="padding:10px 14px;">
+        <h3 style="font-size:14px; margin:0;">Berita</h3>
+      </div>
+
+      <div id="beritaList"></div>
+    </section>
+
+    <!-- HALAMAN ABSEN HARI INI -->
+    <section class="page" id="page-absen">
+      <div class="screen-heading">
+        <h2>ABSEN HARI INI</h2>
+        <div class="user-line" id="absenUserMeta">-</div>
+      </div>
+
+      <div class="summary-box">
+        <h4>Detail Absen Harian</h4>
+        <div class="stat-row">
+          <span>Hari Efektif</span>
+          <span id="statHariEfektif">0</span>
+        </div>
+        <div class="stat-row">
+          <span>Hari Aktif</span>
+          <span id="statHariAktif">0</span>
+        </div>
+        <div class="circle-wrap">
+          <div class="circle-pct" id="statPersen">0.0%</div>
+          <div style="font-size:13px; font-weight:700;">Presensi</div>
+        </div>
+      </div>
+
+      <div class="clock-bar">
+        <span id="lblTanggal">-</span>
+        <span id="lblJam">-</span>
+      </div>
+
+      <div class="action-group">
+        <div class="action-label">Absen Harian (Scan Barcode / QR)</div>
+        <button id="btnAbsenHarian" class="btn-action btn-red" onclick="klikAbsenHarian()">Memuat...</button>
+      </div>
+
+      <div class="action-group">
+        <div class="action-label">Absen Tugas Luar (Sekali Kirim)</div>
+        <input type="text" id="ketTugasLuar" class="form-control" placeholder="Keterangan tugas luar / tujuan dinas..." style="margin-bottom:8px;" />
+        <div class="camera-trigger-box">
+          <input
+            type="file"
+            id="fotoTugasLuar"
+            accept="image/*"
+            capture="environment"
+            style="display:none;"
+            onchange="updateStatusFoto('fotoTugasLuar', 'statusFotoTugasLuar')"
+          />
+          <button type="button" class="btn-kamera-foto" onclick="document.getElementById('fotoTugasLuar').click()">
+            📷 Ambil Foto/Gambar
+          </button>
+          <div id="statusFotoTugasLuar" class="foto-status-text">Belum ada foto diambil (Kamera + Timestamp, Lokasi & Koordinat)</div>
+        </div>
+        <button id="btnTugasLuar" class="btn-action btn-red" onclick="klikTugasLuar()">Tugas Luar</button>
+      </div>
+
+      <div class="action-group">
+        <div class="action-label">Absen Sakit / Izin</div>
+        <input type="text" id="ketSakitIzin" class="form-control" placeholder="Keterangan sakit atau izin..." style="margin-bottom:8px;" />
+        <div class="camera-trigger-box">
+          <input
+            type="file"
+            id="lampiranSakitIzin"
+            accept="image/*"
+            capture="environment"
+            style="display:none;"
+            onchange="updateStatusFoto('lampiranSakitIzin', 'statusFotoSakitIzin')"
+          />
+          <button type="button" class="btn-kamera-foto" onclick="document.getElementById('lampiranSakitIzin').click()">
+            📷 Ambil Foto/Gambar
+          </button>
+          <div id="statusFotoSakitIzin" class="foto-status-text">Belum ada foto diambil (Kamera + Timestamp, Lokasi & Koordinat)</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button id="btnSakit" class="btn-action btn-red" onclick="klikSakitIzin('SAKIT')">Sakit</button>
+          <button id="btnIzin" class="btn-action btn-red" onclick="klikSakitIzin('IZIN')">Izin</button>
+        </div>
+      </div>
+
+      <hr style="border:none; border-top:1px solid var(--border); margin:18px 0;" />
+
+      <div class="screen-heading">
+        <h3 style="font-size:16px;">Detail Absen Bulan Ini</h3>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-item"><span class="badge-ico bg-valid">✓</span> Status absen valid</div>
+        <div class="legend-item"><span class="badge-ico bg-pending">?</span> Absen Belum Divalidasi</div>
+        <div class="legend-item"><span class="badge-ico bg-invalid">✕</span> Absen Tidak Valid</div>
+        <div class="legend-item"><span class="badge-ico bg-none">✕</span> Tidak absen</div>
+      </div>
+
+      <div id="riwayatBulananList"></div>
+    </section>
+
+    <!-- HALAMAN ABSEN TEMAN -->
+    <section class="page" id="page-teman">
+      <div class="login-card">
+        <h2 style="text-align:center; margin-bottom:14px;">ABSEN TEMAN</h2>
+
+        <div class="form-group">
+          <label for="temanSelect">Pilih Perangkat Desa</label>
+          <select id="temanSelect" class="form-control"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="temanJenis">Jenis Absensi</label>
+          <select id="temanJenis" class="form-control">
+            <option value="MASUK">Absen Masuk Harian</option>
+            <option value="KELUAR">Absen Keluar Harian</option>
+            <option value="TUGAS_LUAR">Tugas Luar</option>
+            <option value="SAKIT">Sakit</option>
+            <option value="IZIN">Izin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="temanKet">Keterangan</label>
+          <input type="text" id="temanKet" class="form-control" placeholder="Alasan bantu absen / keterangan..." />
+        </div>
+
+        <button class="btn-action btn-red" onclick="submitAbsenTeman()">Kirim Absen Teman</button>
+      </div>
+    </section>
+
+    <!-- HALAMAN REKAP ABSEN -->
+    <section class="page" id="page-rekap">
+      <div class="rekap-logo-banner" id="rekapLogoBanner">
+        <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
+        <div class="rekap-logo-text" id="rekapLogoTitle">Pemerintah Kabupaten Gorontalo Utara</div>
+      </div>
+
+      <div class="screen-heading">
+        <h2>REKAP ABSEN BULANAN</h2>
+        <div class="user-line" id="rekapPeriodeInfo">-</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+        <div>
+          <label for="rekapBulanSelect" style="display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px;">Pilih Bulan</label>
+          <select id="rekapBulanSelect" class="form-control" style="padding:9px 10px; font-size:13px;" onchange="loadRekapBulanan()">
+            <option value="01">Januari</option>
+            <option value="02">Februari</option>
+            <option value="03">Maret</option>
+            <option value="04">April</option>
+            <option value="05">Mei</option>
+            <option value="06">Juni</option>
+            <option value="07">Juli</option>
+            <option value="08">Agustus</option>
+            <option value="09">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
+        </div>
+        <div>
+          <label for="rekapTahunSelect" style="display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px;">Pilih Tahun</label>
+          <select id="rekapTahunSelect" class="form-control" style="padding:9px 10px; font-size:13px;" onchange="loadRekapBulanan()"></select>
+        </div>
+      </div>
+
+      <div class="print-actions-box">
+        <div class="print-actions-title">🖨️ Cetak / Simpan Dokumen PDF Daftar Hadir</div>
+        <div class="print-btn-row">
+          <button type="button" class="btn-orient btn-portrait" onclick="cetakDokumenRekap('portrait')">
+            📄 Cetak Portrait
+          </button>
+          <button type="button" class="btn-orient btn-landscape" onclick="cetakDokumenRekap('landscape')">
+            🖼️ Cetak Landscape
+          </button>
+        </div>
+      </div>
+
+      <div id="rekapTabelVisual"></div>
+      <div id="rekapList" style="margin-top:12px;"></div>
+    </section>
+
+    <!-- HALAMAN VALIDASI ADMIN -->
+    <section class="page" id="page-validasi">
+      <div class="screen-heading">
+        <h2>VALIDASI ABSENSI</h2>
+        <div class="user-line">Khusus Kepala Desa / Sekdes</div>
+      </div>
+      <div id="validasiList"></div>
+    </section>
+
+    <!-- HALAMAN PROFIL -->
+    <section class="page" id="page-profil">
+      <div class="login-card">
+        <h2 style="margin-bottom:12px; text-align:left;">Profil Perangkat Desa</h2>
+        <div id="profilDetail" style="font-size:13px; line-height:1.7;"></div>
+      </div>
+    </section>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-btn" id="nav-beranda" onclick="navigateTo('page-beranda')">
+        <span>🏠</span>
+        <span>Beranda</span>
+      </button>
+      <button class="nav-btn active" id="nav-absen" onclick="navigateTo('page-absen')">
+        <span>🔔</span>
+        <span>Absen</span>
+      </button>
+      <button class="nav-btn" id="nav-profil" onclick="navigateTo('page-profil')">
+        <span>👤</span>
+        <span>Profil</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- AREA CETAK DAFTAR HADIR BULANAN -->
+  <div id="printArea"></div>
+
+  <script>
+    const SESSION_KEY = 'absen_desa_session_v1';
+    const LOGO_GORONTALO_UTARA_BASE64 = 'https://lh3.googleusercontent.com/d/1LEasXy8v_54DofJ-fLy-_o7_laQ7WwDI';
+    const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzOtFK7tGJYqmy658C9l0CbmlSyTNwBXblBWRuO6CGwqBH1R8_aqASIX_X8ATeQoRWU/exec';
+
+    let KODE_BERSAMA_ABSEN = 'ABSEN-DESA-02';
+    let currentUser = null;
+    let currentDashboard = null;
+    let currentRekapData = null;
+    let html5QrCode = null;
+    let isScanning = false;
+    let aksiScannerAktif = { aksi: 'MASUK', targetIdPerangkat: '', keterangan: '' };
+
+    function updateStatusFoto(inputId, labelId) {
+      const inp = document.getElementById(inputId);
+      const lbl = document.getElementById(labelId);
+      if (!lbl) return;
+      const f = inp && inp.files && inp.files[0] ? inp.files[0] : null;
+      lbl.textContent = f
+        ? `✓ Foto siap: ${f.name || 'hasil_kamera.jpg'}`
+        : 'Belum ada foto diambil (Kamera + Timestamp, Lokasi & Koordinat)';
+    }
+
+    function sinkronkanIconAplikasi(urlLogo) {
+      if (!urlLogo || !urlLogo.trim()) return;
+      const favicon = document.getElementById('appFavicon');
+      const touchIcon = document.getElementById('appTouchIcon');
+      if (favicon) favicon.href = urlLogo;
+      if (touchIcon) touchIcon.href = urlLogo;
+    }
+
+    function terapkanLogoPemda(kabupatenNama) {
+      const hasLogo = Boolean(LOGO_GORONTALO_UTARA_BASE64 && LOGO_GORONTALO_UTARA_BASE64.trim());
+      const hdrImg = document.getElementById('hdrLogoImg');
+      const hdrFb = document.getElementById('hdrLogoFallback');
+      const rekapBanner = document.getElementById('rekapLogoBanner');
+      const rekapImg = document.getElementById('rekapLogoImg');
+      const rekapTitle = document.getElementById('rekapLogoTitle');
+
+      if (rekapTitle && kabupatenNama) {
+        rekapTitle.textContent = `Pemerintah Kabupaten ${kabupatenNama}`;
+      }
+
+      if (hasLogo) {
+        sinkronkanIconAplikasi(LOGO_GORONTALO_UTARA_BASE64.trim());
+        if (hdrImg) {
+          hdrImg.src = LOGO_GORONTALO_UTARA_BASE64;
+          hdrImg.style.display = 'block';
+        }
+        if (hdrFb) {
+          hdrFb.style.display = 'none';
+        }
+        if (rekapImg && rekapBanner) {
+          rekapImg.src = LOGO_GORONTALO_UTARA_BASE64;
+          rekapBanner.style.display = 'flex';
+        }
+      } else {
+        if (hdrImg) hdrImg.style.display = 'none';
+        if (hdrFb) hdrFb.style.display = 'flex';
+        if (rekapBanner) rekapBanner.style.display = 'none';
+      }
+    }
+
+    function setAksiScannerAktif(aksi, targetIdPerangkat, keterangan) {
+      aksiScannerAktif = { aksi, targetIdPerangkat, keterangan };
+    }
+
+    async function runServer(fnName, ...args) {
+      if (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf('GANTI_DENGAN_DEPLOYMENT_ID_ANDA') !== -1) {
+        throw new Error('URL Web App Google Apps Script belum diisi pada GAS_WEBAPP_URL.');
+      }
+
+      if (fnName === 'prosesAbsensi') {
+        const formData = new URLSearchParams();
+        formData.append('action', fnName);
+        formData.append('args', JSON.stringify(args));
+
+        const resp = await fetch(GAS_WEBAPP_URL, {
+          method: 'POST',
+          body: formData
+        });
+        if (!resp.ok) {
+          throw new Error('Respon server tidak normal (' + resp.status + ').');
+        }
+        return await resp.json();
+      }
+
+      return new Promise((resolve, reject) => {
+        const cbName = 'absenCb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('Waktu habis menghubungi server Apps Script.'));
+        }, 20000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          try { delete window[cbName]; } catch (e) {}
+          if (script && script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        }
+
+        window[cbName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        const query = new URLSearchParams({
+          action: fnName,
+          args: JSON.stringify(args),
+          callback: cbName
+        });
+
+        script.src = `${GAS_WEBAPP_URL}?${query.toString()}`;
+        script.onerror = () => {
+          cleanup();
+          reject(new Error('Gagal terhubung ke Web App Google Apps Script.'));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      box.textContent = msg;
+      box.classList.add('show');
+      setTimeout(() => box.classList.remove('show'), 3600);
+    }
+
+    function saveSession(user) {
+      currentUser = user;
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+      } catch (e) {}
+    }
+
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function logoutUser() {
+      tutupScannerModal();
+      currentUser = null;
+      try {
+        localStorage.removeItem(SESSION_KEY);
+      } catch (e) {}
+      document.getElementById('btnLogout').style.display = 'none';
+      document.getElementById('bottomNav').classList.remove('visible');
+      switchPage('page-login');
+      loadDaftarLogin();
+    }
+
+    function switchPage(pageId) {
+      document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+      const target = document.getElementById(pageId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
+      if (pageId === 'page-beranda') document.getElementById('nav-beranda').classList.add('active');
+      if (pageId === 'page-absen') document.getElementById('nav-absen').classList.add('active');
+      if (pageId === 'page-profil') document.getElementById('nav-profil').classList.add('active');
+    }
+
+    function navigateTo(pageId) {
+      if (!currentUser) {
+        switchPage('page-login');
+        return;
+      }
+      switchPage(pageId);
+      if (pageId === 'page-beranda' || pageId === 'page-absen' || pageId === 'page-teman') {
+        refreshDashboard();
+      } else if (pageId === 'page-rekap') {
+        loadRekapBulanan();
+      } else if (pageId === 'page-validasi') {
+        loadValidasiAdmin();
+      } else if (pageId === 'page-profil') {
+        renderProfil();
+      }
+    }
+
+    async function loadDaftarLogin() {
+      try {
+        const res = await runServer('apiGetDaftarPerangkat');
+        const sel = document.getElementById('loginSelect');
+        sel.innerHTML = '<option value="">-- Pilih Nama Perangkat --</option>';
+        (res.data || []).forEach((u) => {
+          const opt = document.createElement('option');
+          opt.value = u.idPerangkat;
+          opt.textContent = `${u.namaLengkap} (${u.jabatan})`;
+          sel.appendChild(opt);
+        });
+      } catch (err) {
+        showToast('Gagal memuat daftar: ' + err.message);
+      }
+    }
+
+    async function handleLogin() {
+      const idPerangkat = document.getElementById('loginSelect').value;
+      const pin = document.getElementById('loginPin').value;
+      if (!idPerangkat || !pin) {
+        showToast('Pilih nama perangkat dan isi PIN.');
+        return;
+      }
+      try {
+        const res = await runServer('loginPerangkat', idPerangkat, pin);
+        if (!res.success) {
+          showToast(res.message);
+          return;
+        }
+        saveSession(res.user);
+        document.getElementById('loginPin').value = '';
+        onAuthenticated();
+      } catch (err) {
+        showToast('Kesalahan login: ' + err.message);
+      }
+    }
+
+    function onAuthenticated() {
+      document.getElementById('btnLogout').style.display = 'inline-block';
+      document.getElementById('bottomNav').classList.add('visible');
+      document.getElementById('adminBannerWrap').style.display =
+        String(currentUser.role).toLowerCase() === 'admin' ? 'block' : 'none';
+      switchPage('page-absen');
+      refreshDashboard();
+    }
+
+    async function refreshDashboard() {
+      if (!currentUser) return;
+      try {
+        const res = await runServer('apiGetDashboardData', currentUser.idPerangkat, null);
+        if (res.success && res.data) {
+          currentDashboard = res.data;
+          if (res.data.kodeBersama) {
+            KODE_BERSAMA_ABSEN = res.data.kodeBersama;
+          }
+          renderAllData(res.data);
+        }
+      } catch (err) {
+        showToast('Gagal memuat data: ' + err.message);
+      }
+    }
+
+    function renderAllData(data) {
+      const p = data.pengaturan || {};
+      const kab = p.kabupaten || 'Gorontalo Utara';
+      const kec = p.kecamatan || '';
+      const desa = p.namaDesa || 'Desa';
+      document.getElementById('hdrKabupaten').textContent = `Kab. ${kab}`;
+      document.getElementById('hdrDesa').textContent = `Desa ${desa}${kec ? ' - Kec. ' + kec : ''}`;
+      terapkanLogoPemda(kab);
+
+      document.getElementById('berandaUserInfo').textContent =
+        `${currentUser.namaLengkap} • ${currentUser.jabatan} (${data.now.tanggal})`;
+
+      const beritaWrap = document.getElementById('beritaList');
+      if (!data.berita || data.berita.length === 0) {
+        beritaWrap.innerHTML = '<div class="news-card"><div class="news-body">Belum ada berita atau pemberitahuan terbaru.</div></div>';
+      } else {
+        beritaWrap.innerHTML = data.berita
+          .map(
+            (b) => `
+          <div class="news-card">
+            <span class="news-badge">${b.kategori}</span>
+            <div class="news-title">${b.judul}</div>
+            <div class="news-meta">${b.tanggal}</div>
+            <div class="news-body">${b.isi}</div>
+          </div>`
+          )
+          .join('');
+      }
+
+      document.getElementById('absenUserMeta').textContent =
+        `${currentUser.namaLengkap} - ${currentUser.jabatan}`;
+      document.getElementById('statHariEfektif').textContent = data.ringkasan.hariEfektif;
+      document.getElementById('statHariAktif').textContent = data.ringkasan.hariAktif;
+      document.getElementById('statPersen').textContent = `${Number(data.ringkasan.persentase || 0).toFixed(1)}%`;
+      document.getElementById('lblTanggal').textContent = data.now.tanggal;
+      document.getElementById('lblJam').textContent = data.now.jamMenit;
+
+      const btnHarian = document.getElementById('btnAbsenHarian');
+      const ctrl = data.kontrolTombol || {};
+      const logToday = data.logHariIni;
+
+      btnHarian.className = 'btn-action';
+      btnHarian.disabled = false;
+
+      if (logToday && logToday.jenis === 'Harian') {
+        if (!logToday.jamKeluar) {
+          if (ctrl.keluarBoleh) {
+            btnHarian.textContent = 'Absen Keluar (Scan)';
+            btnHarian.classList.add('btn-red');
+          } else {
+            btnHarian.textContent = 'Sudah Absen Masuk (Keluar 15:30–21:00)';
+            btnHarian.classList.add('btn-gray');
+            btnHarian.disabled = true;
+          }
+        } else {
+          btnHarian.textContent = 'Anda telah melakukan absen hari ini';
+          btnHarian.classList.add('btn-gray');
+          btnHarian.disabled = true;
+        }
+      } else if (logToday) {
+        btnHarian.textContent = `Tercatat: ${logToday.jenis}`;
+        btnHarian.classList.add('btn-gray');
+        btnHarian.disabled = true;
+      } else {
+        if (ctrl.masukBoleh) {
+          btnHarian.textContent = 'Absen Masuk (Scan)';
+          btnHarian.classList.add('btn-red');
+        } else {
+          btnHarian.textContent = ctrl.teksTombol || 'Waktu Absen Masuk Telah Berakhir (Terkunci)';
+          btnHarian.classList.add('btn-gray');
+          btnHarian.disabled = true;
+        }
+      }
+
+      renderDetailBulanan(data.detailBulanan || []);
+
+      const temanSel = document.getElementById('temanSelect');
+      temanSel.innerHTML = '<option value="">-- Pilih Perangkat Desa --</option>';
+      (data.daftarTeman || []).forEach((t) => {
+        const opt = document.createElement('option');
+        opt.value = t.idPerangkat;
+        opt.textContent = `${t.namaLengkap} (${t.jabatan})`;
+        temanSel.appendChild(opt);
+      });
+    }
+
+    function getStatusBadge(statusVal, adaWaktu) {
+      const s = String(statusVal || '').toLowerCase();
+      if (s === 'valid') return '<span class="badge-ico bg-valid">✓</span>';
+      if (s === 'ditolak' || s === 'tidak valid') return '<span class="badge-ico bg-invalid">✕</span>';
+      if (s === 'menunggu') return '<span class="badge-ico bg-pending">?</span>';
+      if (!adaWaktu) return '<span class="badge-ico bg-none">✕</span>';
+      return '<span class="badge-ico bg-pending">?</span>';
+    }
+
+    function renderDetailBulanan(items) {
+      const wrap = document.getElementById('riwayatBulananList');
+      if (!items.length) {
+        wrap.innerHTML = '<div class="log-card"><div style="text-align:center; font-size:12px; color:var(--muted);">Belum ada riwayat absensi bulan ini.</div></div>';
+        return;
+      }
+
+      wrap.innerHTML = items
+        .map((it) => {
+          const icoMasuk = getStatusBadge(it.statusValidasi, Boolean(it.jamMasuk));
+          const icoKeluar = getStatusBadge(it.statusValidasi, Boolean(it.jamKeluar && it.jamKeluar !== '-'));
+          return `
+            <div class="log-card">
+              <div class="log-top">
+                <span>${it.tanggal} (${it.jenis})</span>
+                <span>Skor: ${it.statusValidasi === 'Valid' ? (it.skorMasuk + it.skorKeluar) : 0} pts • ${it.statusValidasi}</span>
+              </div>
+              <div class="log-cols">
+                <div style="flex:1;">
+                  <div class="log-col-title">Masuk / Unggah</div>
+                  ${icoMasuk}
+                  <div class="log-time">${it.jamMasuk || '-'}</div>
+                </div>
+                <div style="flex:1;">
+                  <div class="log-col-title">Keluar</div>
+                  ${icoKeluar}
+                  <div class="log-time">${it.jamKeluar || '-'}</div>
+                </div>
+              </div>
+            </div>`;
+        })
+        .join('');
+    }
+
+    async function dapatkanNamaLokasiDetail_(lat, lng) {
+      if (lat === null || lng === null || isNaN(Number(lat)) || isNaN(Number(lng))) {
+        return '';
+      }
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=18&addressdetails=1&accept-language=id`;
+        const resp = await fetch(url, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!resp.ok) return '';
+        const data = await resp.json();
+        const addr = (data && data.address) || {};
+
+        let namaTempat = String(
+          (data && data.name) ||
+          addr.amenity ||
+          addr.building ||
+          addr.office ||
+          addr.shop ||
+          ''
+        ).trim();
+
+        let jalan = String(
+          addr.road ||
+          addr.street ||
+          addr.pedestrian ||
+          addr.footway ||
+          addr.path ||
+          ''
+        ).trim();
+
+        let desa = String(
+          addr.village ||
+          addr.suburb ||
+          addr.hamlet ||
+          addr.neighbourhood ||
+          ''
+        ).trim();
+
+        let kec = String(
+          addr.city_district ||
+          addr.district ||
+          addr.municipality ||
+          addr.county ||
+          ''
+        ).trim();
+
+        let kab = String(
+          addr.county ||
+          addr.state_district ||
+          addr.city ||
+          addr.regency ||
+          ''
+        ).trim();
+
+        desa = desa.replace(/^(desa|ds\.?|kelurahan|kel\.?)\s+/i, '').trim();
+        kec = kec.replace(/^(kecamatan|kec\.?)\s+/i, '').trim();
+        kab = kab.replace(/^(kabupaten|kab\.?|kota)\s+/i, '').trim();
+
+        const gabunganCek = `${namaTempat} ${jalan} ${desa} ${kec} ${kab}`.toLowerCase();
+        if (
+          gabunganCek.indexOf('atinggola') !== -1 ||
+          gabunganCek.indexOf('monggupo') !== -1 ||
+          gabunganCek.indexOf('mopangga') !== -1
+        ) {
+          if (!kec || kec.toLowerCase() === 'gorontalo utara') {
+            kec = 'Atinggola';
+          }
+          if (!kab || kab.toLowerCase() === 'atinggola') {
+            kab = 'Gorontalo Utara';
+          }
+        }
+
+        if (kec && kab && kec.toLowerCase() === kab.toLowerCase()) {
+          kec = '';
+        }
+
+        if (namaTempat && jalan && namaTempat.toLowerCase() === jalan.toLowerCase()) {
+          namaTempat = '';
+        }
+
+        const bagian = [];
+        if (namaTempat && namaTempat.toLowerCase() !== desa.toLowerCase()) {
+          bagian.push(namaTempat);
+        }
+        if (jalan && jalan.toLowerCase() !== desa.toLowerCase()) {
+          bagian.push(/^jl\.?\s+/i.test(jalan) ? jalan : `Jl. ${jalan}`);
+        }
+        if (desa) {
+          bagian.push(`Ds. ${desa}`);
+        }
+        if (kec) {
+          bagian.push(`Kec. ${kec}`);
+        }
+        if (kab) {
+          bagian.push(`Kab. ${kab}`);
+        }
+
+        return bagian.join(', ');
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function dapatkanKoordinatSaatIni_() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve({ lat: null, lng: null, label: 'GPS tidak tersedia', alamat: '' });
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const koordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            const alamat = await dapatkanNamaLokasiDetail_(lat, lng);
+            resolve({
+              lat,
+              lng,
+              label: koordStr,
+              alamat
+            });
+          },
+          () => resolve({ lat: null, lng: null, label: 'Lokasi tidak aktif', alamat: '' }),
+          { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
+        );
+      });
+    }
+
+    function formatTimestampKamera_(dateObj = new Date()) {
+      const bln = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+      ];
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const m = bln[dateObj.getMonth()];
+      const y = dateObj.getFullYear();
+      const hh = String(dateObj.getHours()).padStart(2, '0');
+      const mm = String(dateObj.getMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getSeconds()).padStart(2, '0');
+      return `${d} ${m} ${y} ${hh}:${mm}:${ss}`;
+    }
+
+    function siapkanLampiranFile(file, coordsInfo = null) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve(null);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 900;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              const r = Math.min(maxDim / w, maxDim / h);
+              w = Math.round(w * r);
+              h = Math.round(h * r);
+            }
+
+            const alamatTeks = coordsInfo && coordsInfo.alamat ? coordsInfo.alamat : '';
+            const barHeight = alamatTeks ? 90 : 66;
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h + barHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            ctx.fillStyle = 'rgba(17, 24, 39, 0.95)';
+            ctx.fillRect(0, h, w, barHeight);
+
+            const waktuStr = formatTimestampKamera_(new Date());
+            const koordStr = coordsInfo && coordsInfo.label ? coordsInfo.label : 'Lokasi tidak aktif';
+
+            ctx.fillStyle = '#facc15';
+            ctx.font = 'bold 17px sans-serif';
+            ctx.fillText(`🕒 ${waktuStr}`, 12, h + 24);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText(`📍 Koordinat: ${koordStr}`, 12, h + 47);
+
+            if (alamatTeks) {
+              ctx.fillStyle = '#86efac';
+              ctx.font = 'bold 13.5px sans-serif';
+              ctx.fillText(`🗺️ ${alamatTeks.slice(0, 74)}`, 12, h + 71);
+            }
+
+            const previewDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+            const base64 = previewDataUrl.split(',')[1] || '';
+            resolve({
+              base64,
+              previewDataUrl,
+              mimeType: 'image/jpeg',
+              fileName: 'bukti_timestamp.jpg',
+              lat: coordsInfo ? coordsInfo.lat : null,
+              lng: coordsInfo ? coordsInfo.lng : null,
+              alamat: alamatTeks
+            });
+          };
+          img.onerror = () => reject(new Error('Gagal memproses foto dari kamera.'));
+          img.src = reader.result;
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca hasil kamera.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function ambilLokasiDanKirim(targetIdPerangkat, aksi, keterangan, kodeScan = '', lampiran = null, presetCoords = null) {
+      showToast('Mengambil lokasi & mengirim bukti...');
+      const kirim = async (lat, lng) => {
+        try {
+          const res = await runServer('prosesAbsensi', {
+            targetIdPerangkat,
+            penginputIdPerangkat: currentUser.idPerangkat,
+            aksi,
+            keterangan,
+            kodeScan,
+            lampiran,
+            lat,
+            lng
+          });
+          showToast(res.message);
+          refreshDashboard();
+        } catch (err) {
+          showToast('Gagal mengirim absensi: ' + err.message);
+        }
+      };
+
+      if (presetCoords && (presetCoords.lat !== null || presetCoords.lng !== null)) {
+        kirim(presetCoords.lat, presetCoords.lng);
+        return;
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => kirim(pos.coords.latitude, pos.coords.longitude),
+          () => kirim(null, null),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        kirim(null, null);
+      }
+    }
+
+    async function tutupScannerModal() {
+      const modal = document.getElementById('scannerModal');
+      modal.classList.remove('show');
+      if (html5QrCode && isScanning) {
+        try {
+          await html5QrCode.stop();
+        } catch (e) {}
+        isScanning = false;
+      }
+    }
+
+    function bacaQrDenganCanvas(file) {
+      return new Promise((resolve, reject) => {
+        if (typeof jsQR === 'undefined') {
+          reject(new Error('jsQR tidak tersedia'));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 1200;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              const rasio = Math.min(maxDim / w, maxDim / h);
+              w = Math.round(w * rasio);
+              h = Math.round(h * rasio);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const code = jsQR(imageData.data, w, h, { inversionAttempts: 'attemptBoth' });
+            if (code && code.data) {
+              resolve(String(code.data).trim());
+            } else {
+              reject(new Error('Kode tidak ditemukan pada canvas'));
+            }
+          };
+          img.onerror = () => reject(new Error('Gagal memuat gambar'));
+          img.src = reader.result;
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca file'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function pindaiDariFotoInput(event) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('scannerStatus');
+      const modal = document.getElementById('scannerModal');
+      if (!html5QrCode && typeof Html5Qrcode !== 'undefined') {
+        html5QrCode = new Html5Qrcode('qrReaderBox');
+      }
+
+      statusEl.textContent = 'Membaca kode dari foto...';
+      let hasil = '';
+
+      try {
+        if (html5QrCode) {
+          const decodedText = await html5QrCode.scanFile(file, true);
+          hasil = String(decodedText || '').trim();
+        }
+      } catch (e) {
+        hasil = '';
+      }
+
+      if (!hasil) {
+        try {
+          hasil = await bacaQrDenganCanvas(file);
+        } catch (e2) {
+          hasil = '';
+        }
+      }
+
+      event.target.value = '';
+
+      if (!hasil) {
+        statusEl.textContent = 'Kode tidak terbaca pada foto. Gunakan QR polos hitam-putih lalu foto ulang.';
+        showToast('Gagal membaca kode dari foto.');
+        return;
+      }
+
+      if (hasil !== KODE_BERSAMA_ABSEN) {
+        statusEl.textContent = `Kode "${hasil}" tidak sesuai kode bersama kantor desa.`;
+        showToast('Kode pada foto tidak sesuai.');
+        return;
+      }
+
+      statusEl.textContent = `Kode terverifikasi (${hasil}). Mengirim absensi...`;
+      modal.classList.remove('show');
+      ambilLokasiDanKirim(
+        aksiScannerAktif.targetIdPerangkat,
+        aksiScannerAktif.aksi,
+        aksiScannerAktif.keterangan,
+        hasil
+      );
+    }
+
+    async function bukaScannerUntukAksi(aksi, targetIdPerangkat, keterangan) {
+      setAksiScannerAktif(aksi, targetIdPerangkat, keterangan);
+
+      if (typeof Html5Qrcode === 'undefined') {
+        showToast('Library kamera belum termuat. Periksa koneksi internet.');
+        return;
+      }
+      const modal = document.getElementById('scannerModal');
+      const titleEl = document.getElementById('scannerTitle');
+      const statusEl = document.getElementById('scannerStatus');
+      const labelAksi = aksi === 'KELUAR' ? 'Absen Keluar' : 'Absen Masuk';
+
+      titleEl.textContent = `Scan Barcode / QR — ${labelAksi}`;
+      statusEl.textContent = 'Membuka kamera belakang...';
+      modal.classList.add('show');
+
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode('qrReaderBox');
+      }
+
+      if (isScanning) {
+        try { await html5QrCode.stop(); } catch (e) {}
+        isScanning = false;
+      }
+
+      try {
+        await html5QrCode.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 220, height: 220 } },
+          async (decodedText) => {
+            if (!isScanning) return;
+            const hasil = String(decodedText || '').trim();
+            if (hasil !== KODE_BERSAMA_ABSEN) {
+              statusEl.textContent = `Kode "${hasil}" tidak sesuai. Arahkan ke kode bersama kantor desa.`;
+              return;
+            }
+            isScanning = false;
+            statusEl.textContent = `Kode terverifikasi (${hasil}). Mengirim ${labelAksi}...`;
+            try { await html5QrCode.stop(); } catch (e) {}
+            modal.classList.remove('show');
+            ambilLokasiDanKirim(targetIdPerangkat, aksi, keterangan, hasil);
+          },
+          () => {}
+        );
+        isScanning = true;
+        statusEl.textContent = 'Kamera aktif — arahkan ke barcode / QR absen kantor desa.';
+      } catch (err) {
+        isScanning = false;
+        statusEl.textContent = 'Kamera live gagal dibuka. Gunakan tombol "Ambil Foto/Gambar Kode" di bawah.';
+        showToast('Akses kamera live gagal: ' + (err.message || err));
+      }
+    }
+
+    function klikAbsenHarian() {
+      const logToday = currentDashboard && currentDashboard.logHariIni;
+      const aksi = logToday && logToday.jenis === 'Harian' && !logToday.jamKeluar ? 'KELUAR' : 'MASUK';
+      bukaScannerUntukAksi(aksi, currentUser.idPerangkat, '');
+    }
+
+    async function klikTugasLuar() {
+      const ket = document.getElementById('ketTugasLuar').value.trim();
+      const fotoInput = document.getElementById('fotoTugasLuar');
+      const file = fotoInput && fotoInput.files && fotoInput.files[0] ? fotoInput.files[0] : null;
+
+      if (!file) {
+        showToast('Tekan "Ambil Foto/Gambar" bukti tugas luar terlebih dahulu.');
+        return;
+      }
+
+      try {
+        showToast('Mengambil detail lokasi & menyiapkan foto...');
+        const coordsInfo = await dapatkanKoordinatSaatIni_();
+        const lampiran = await siapkanLampiranFile(file, coordsInfo);
+        ambilLokasiDanKirim(currentUser.idPerangkat, 'TUGAS_LUAR', ket, '', lampiran, coordsInfo);
+        document.getElementById('ketTugasLuar').value = '';
+        if (fotoInput) fotoInput.value = '';
+        updateStatusFoto('fotoTugasLuar', 'statusFotoTugasLuar');
+      } catch (err) {
+        showToast(err.message || 'Gagal menyiapkan bukti foto tugas luar.');
+      }
+    }
+
+    async function klikSakitIzin(aksi) {
+      const ket = document.getElementById('ketSakitIzin').value.trim();
+      const fileInput = document.getElementById('lampiranSakitIzin');
+      const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+      if (!file) {
+        showToast(`Tekan "Ambil Foto/Gambar" bukti ${aksi === 'SAKIT' ? 'sakit' : 'izin'} terlebih dahulu.`);
+        return;
+      }
+
+      try {
+        showToast('Mengambil detail lokasi & menyiapkan foto...');
+        const coordsInfo = await dapatkanKoordinatSaatIni_();
+        const lampiran = await siapkanLampiranFile(file, coordsInfo);
+        ambilLokasiDanKirim(currentUser.idPerangkat, aksi, ket, '', lampiran, coordsInfo);
+        document.getElementById('ketSakitIzin').value = '';
+        if (fileInput) fileInput.value = '';
+        updateStatusFoto('lampiranSakitIzin', 'statusFotoSakitIzin');
+      } catch (err) {
+        showToast(err.message || 'Gagal menyiapkan bukti foto.');
+      }
+    }
+
+    function submitAbsenTeman() {
+      const targetId = document.getElementById('temanSelect').value;
+      const aksi = document.getElementById('temanJenis').value;
+      const ket = document.getElementById('temanKet').value.trim();
+      if (!targetId) {
+        showToast('Pilih perangkat desa terlebih dahulu.');
+        return;
+      }
+      ambilLokasiDanKirim(targetId, aksi, ket, '');
+      document.getElementById('temanKet').value = '';
+    }
+
+    function initFilterRekapPeriode() {
+      const selBulan = document.getElementById('rekapBulanSelect');
+      const selTahun = document.getElementById('rekapTahunSelect');
+      if (!selBulan || !selTahun) return;
+
+      const now = new Date();
+      const tahunSekarang = now.getFullYear();
+      const bulanSekarang = String(now.getMonth() + 1).padStart(2, '0');
+
+      if (!selTahun.options.length) {
+        const tahunMulai = 2025;
+        const tahunAkhir = Math.max(tahunSekarang + 5, 2035);
+        for (let y = tahunMulai; y <= tahunAkhir; y++) {
+          const opt = document.createElement('option');
+          opt.value = String(y);
+          opt.textContent = String(y);
+          selTahun.appendChild(opt);
+        }
+        selBulan.value = bulanSekarang;
+        selTahun.value = String(tahunSekarang);
+      }
+    }
+
+    function formatTanggalUnduhIndo(dateObj = new Date()) {
+      const bln = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      const d = dateObj.getDate();
+      const m = dateObj.getMonth();
+      const y = dateObj.getFullYear();
+      return `${d} ${bln[m]} ${y}`;
+    }
+
+    function formatSimbolRekap(kode) {
+      if (kode === 'H') return '<span class="sym-hadir">✓</span>';
+      if (kode === 'S') return '<span class="sym-sakit">S</span>';
+      if (kode === 'I') return '<span class="sym-izin">I</span>';
+      if (kode === 'A') return '<span class="sym-alpa">A</span>';
+      return '';
+    }
+
+    function renderSimbolSelCetak(kode) {
+      return formatSimbolRekap(kode);
+    }
+
+    function renderTabelRekapVisual(d) {
+      const wrap = document.getElementById('rekapTabelVisual');
+      if (!wrap) return;
+      if (!d || !d.rekap || !d.rekap.length) {
+        wrap.innerHTML = '';
+        return;
+      }
+
+      const p = d.pengaturan || {};
+      const kabUpper = String(p.kabupaten || 'GORONTALO UTARA').toUpperCase();
+      const kecUpper = String(p.kecamatan || 'ATINGGOLA').toUpperCase();
+      const desaTitle = String(p.namaDesa || 'Monggupo').trim();
+      const desaUpper = desaTitle.toUpperCase();
+      const jumlahHari = Number(d.jumlahHariBulan || 30);
+      const namaKades = p.namaKepalaDesa || '_____________________';
+      const namaSekdes = p.namaSekretarisDesa || '_____________________';
+      const tglUnduh = formatTanggalUnduhIndo(new Date());
+
+      let dayHeaders = '';
+      for (let day = 1; day <= jumlahHari; day++) {
+        dayHeaders += `<th style="min-width:18px;">${day}</th>`;
+      }
+
+      const bodyRows = d.rekap
+        .map((r, idx) => {
+          let dayCells = '';
+          for (let day = 1; day <= jumlahHari; day++) {
+            const kode = r.mapTanggal ? r.mapTanggal[day] : '';
+            dayCells += `<td>${formatSimbolRekap(kode)}</td>`;
+          }
+          const pctStr = `${Number(r.persentase || 0).toFixed(1)}%`;
+          return `
+            <tr>
+              <td>${idx + 1}</td>
+              <td class="sticky-col">${r.namaLengkap}</td>
+              <td class="sticky-col">${r.jabatan}</td>
+              ${dayCells}
+              <td style="font-weight:700;">${pctStr}</td>
+            </tr>`;
+        })
+        .join('');
+
+      const logoHtml = LOGO_GORONTALO_UTARA_BASE64
+        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" />`
+        : '';
+
+      wrap.innerHTML = `
+        <div class="rekap-table-scroll">
+          <div class="rekap-kop-box">
+            ${logoHtml}
+            <div class="rekap-kop-title">
+              <div>PEMERINTAH KABUPATEN ${kabUpper}</div>
+              <div>KECAMATAN ${kecUpper}</div>
+              <div>DESA ${desaUpper}</div>
+            </div>
+          </div>
+
+          <div style="text-align:center; font-size:11px; font-weight:800; margin-bottom:8px;">
+            DAFTAR HADIR BULAN ${d.bulanTahun || ''}
+          </div>
+
+          <table class="rekap-matrix">
+            <thead>
+              <tr>
+                <th rowspan="2">NO</th>
+                <th rowspan="2" class="sticky-col">NAMA</th>
+                <th rowspan="2" class="sticky-col">JABATAN</th>
+                <th colspan="${jumlahHari}">TANGGAL</th>
+                <th rowspan="2">%</th>
+              </tr>
+              <tr>
+                ${dayHeaders}
+              </tr>
+            </thead>
+            <tbody>
+              ${bodyRows}
+            </tbody>
+          </table>
+
+          <div style="margin-top:8px; font-size:10.5px; line-height:1.5;">
+            <b>Keterangan:</b>
+            <span class="sym-hadir">✓</span> = Hadir (H) &nbsp;|&nbsp;
+            <span class="sym-sakit">S</span> = Sakit &nbsp;|&nbsp;
+            <span class="sym-izin">I</span> = Izin &nbsp;|&nbsp;
+            <span class="sym-alpa">A</span> = Alpa / Tidak Absen &nbsp;|&nbsp;
+            <b>%</b> = Persentase Poin Valid
+          </div>
+
+          <div class="rekap-ttd-row">
+            <div class="rekap-ttd-col">
+              <div>Mengetahui,</div>
+              <div>Kepala Desa ${desaTitle}</div>
+              <div class="rekap-ttd-line">${namaKades}</div>
+            </div>
+            <div class="rekap-ttd-col">
+              <div>${desaTitle}, ${tglUnduh}</div>
+              <div>Sekretaris Desa ${desaTitle}</div>
+              <div class="rekap-ttd-line">${namaSekdes}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    async function loadRekapBulanan() {
+      initFilterRekapPeriode();
+      terapkanLogoPemda(
+        (currentRekapData && currentRekapData.pengaturan && currentRekapData.pengaturan.kabupaten) || 'Gorontalo Utara'
+      );
+
+      const bulanVal = document.getElementById('rekapBulanSelect').value;
+      const tahunVal = document.getElementById('rekapTahunSelect').value;
+      const yearMonthParam = bulanVal && tahunVal ? `${tahunVal}-${bulanVal}` : null;
+
+      document.getElementById('rekapPeriodeInfo').textContent = 'Memuat data rekap periode...';
+
+      try {
+        const res = await runServer('apiGetRekapBulanan', yearMonthParam);
+        const d = res.data || {};
+        currentRekapData = d;
+        terapkanLogoPemda((d.pengaturan && d.pengaturan.kabupaten) || 'Gorontalo Utara');
+        renderTabelRekapVisual(d);
+        document.getElementById('rekapPeriodeInfo').textContent =
+          `Periode ${d.bulanTahun || '-'} • Hari Efektif: ${d.hariEfektif || 0} (Maks ${d.poinMaksimal || 0} pts)`;
+
+        const wrap = document.getElementById('rekapList');
+        wrap.innerHTML = (d.rekap || [])
+          .map(
+            (r) => `
+            <div class="rekap-item">
+              <div>
+                <div style="font-size:13px; font-weight:700;">${r.namaLengkap}</div>
+                <div style="font-size:11px; color:var(--muted);">${r.jabatan} • Aktif ${r.hariAktif}/${r.hariEfektif} hr • Poin ${r.totalPoinValid}/${r.poinMaksimal}</div>
+              </div>
+              <div class="rekap-pct">${Number(r.persentase || 0).toFixed(1)}%</div>
+            </div>`
+          )
+          .join('');
+      } catch (err) {
+        showToast('Gagal memuat rekap: ' + err.message);
+      }
+    }
+
+    function setOrientasiCetak(orientasi) {
+      const isLand = orientasi === 'landscape';
+      const styleTag = document.getElementById('dynamicPrintPageStyle');
+      if (styleTag) {
+        styleTag.textContent = isLand
+          ? '@page { size: landscape; margin: 8mm; }'
+          : '@page { size: portrait; margin: 10mm; }';
+      }
+    }
+
+    function cetakDokumenRekap(orientasi = 'portrait') {
+      const d = currentRekapData;
+      if (!d || !d.rekap) {
+        showToast('Data rekap belum siap.');
+        return;
+      }
+
+      setOrientasiCetak(orientasi);
+
+      const p = d.pengaturan || {};
+      const kabUpper = String(p.kabupaten || 'GORONTALO UTARA').toUpperCase();
+      const kecUpper = String(p.kecamatan || 'ATINGGOLA').toUpperCase();
+      const desaTitle = String(p.namaDesa || 'Monggupo').trim();
+      const desaUpper = desaTitle.toUpperCase();
+      const jumlahHari = Number(d.jumlahHariBulan || 30);
+      const tglUnduh = formatTanggalUnduhIndo(new Date());
+      const cellFontPx = orientasi === 'landscape' ? '8px' : '6.8px';
+      const dayPad = orientasi === 'landscape' ? '2px 1.5px' : '2px 1px';
+
+      let dayHeaders = '';
+      for (let day = 1; day <= jumlahHari; day++) {
+        dayHeaders += `<th style="padding:${dayPad}; font-size:${cellFontPx};">${day}</th>`;
+      }
+
+      const rowsHtml = d.rekap
+        .map((r, idx) => {
+          let dayCells = '';
+          for (let day = 1; day <= jumlahHari; day++) {
+            const kode = r.mapTanggal ? r.mapTanggal[day] : '';
+            dayCells += `<td style="padding:${dayPad}; font-size:${cellFontPx};">${renderSimbolSelCetak(kode)}</td>`;
+          }
+          const pctStr = `${Number(r.persentase || 0).toFixed(1)}%`;
+          return `
+            <tr>
+              <td style="padding:${dayPad}; font-size:${cellFontPx};">${idx + 1}</td>
+              <td class="col-nama" style="padding:${dayPad}; font-size:${cellFontPx};">${r.namaLengkap}</td>
+              <td class="col-jabatan" style="padding:${dayPad}; font-size:${cellFontPx};">${r.jabatan}</td>
+              ${dayCells}
+              <td style="font-weight:700; padding:${dayPad}; font-size:${cellFontPx};">${pctStr}</td>
+            </tr>`;
+        })
+        .join('');
+
+      const logoHtml = LOGO_GORONTALO_UTARA_BASE64
+        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" />`
+        : '';
+
+      const namaKades = p.namaKepalaDesa || '_______________________';
+      const namaSekdes = p.namaSekretarisDesa || '_______________________';
+
+      document.getElementById('printArea').innerHTML = `
+        <div class="print-kop">
+          ${logoHtml}
+          <div class="print-kop-text">
+            <div>PEMERINTAH KABUPATEN ${kabUpper}</div>
+            <div>KECAMATAN ${kecUpper}</div>
+            <div>DESA ${desaUpper}</div>
+          </div>
+        </div>
+
+        <div class="print-judul">
+          DAFTAR HADIR PEMERINTAH DESA ${desaUpper} BULAN ${d.bulanTahun || ''}
+        </div>
+
+        <div class="print-table-wrap">
+          <table class="rekap-cetak">
+            <thead>
+              <tr>
+                <th rowspan="2" style="padding:${dayPad}; font-size:${cellFontPx};">NO</th>
+                <th rowspan="2" class="col-nama" style="padding:${dayPad}; font-size:${cellFontPx};">NAMA</th>
+                <th rowspan="2" class="col-jabatan" style="padding:${dayPad}; font-size:${cellFontPx};">JABATAN</th>
+                <th colspan="${jumlahHari}" style="padding:${dayPad}; font-size:${cellFontPx};">TANGGAL</th>
+                <th rowspan="2" style="padding:${dayPad}; font-size:${cellFontPx};">%</th>
+              </tr>
+              <tr>
+                ${dayHeaders}
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="print-footer-wrap">
+          <div class="print-legenda">
+            <div><b>Keterangan:</b></div>
+            <div><span class="tanda-centang">✓</span> : Hadir (H)</div>
+            <div><span class="sym-sakit">S</span> : Sakit</div>
+            <div><span class="sym-izin">I</span> : Izin</div>
+            <div><span class="sym-alpa">A</span> : Alpa / Tidak Absen</div>
+            <div><b>%</b> : Persentase Poin Valid</div>
+          </div>
+          <div>Orientasi: ${orientasi === 'landscape' ? 'Landscape' : 'Portrait'}</div>
+        </div>
+
+        <div class="print-ttd-grid">
+          <div class="print-ttd-box">
+            <div>Mengetahui,</div>
+            <div>Kepala Desa ${desaTitle}</div>
+            <div class="print-ttd-nama">${namaKades}</div>
+          </div>
+          <div class="print-ttd-box">
+            <div>${desaTitle}, ${tglUnduh}</div>
+            <div>Sekretaris Desa ${desaTitle}</div>
+            <div class="print-ttd-nama">${namaSekdes}</div>
+          </div>
+        </div>`;
+
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    }
+
+    async function loadValidasiAdmin() {
+      const wrap = document.getElementById('validasiList');
+      wrap.innerHTML = '<div class="log-card"><div style="font-size:12px;">Memuat antrean validasi...</div></div>';
+      try {
+        const res = await runServer('getDataValidasiAdmin', currentUser.idPerangkat);
+        if (!res.success) {
+          wrap.innerHTML = `<div class="log-card"><div style="font-size:12px; color:var(--danger);">${res.message}</div></div>`;
+          return;
+        }
+        const items = res.items || [];
+        if (!items.length) {
+          wrap.innerHTML = '<div class="log-card"><div style="font-size:12px; color:var(--muted);">Tidak ada absensi yang menunggu validasi.</div></div>';
+          return;
+        }
+        wrap.innerHTML = items
+          .map((it) => {
+            const rawKet = String(it.keterangan || '');
+            const matchPreview = rawKet.match(/BuktiPreview:\s*(data:image\/[^|\s]+)/i);
+            const previewHtml = matchPreview
+              ? `<div class="validator-preview-box">
+                   <div style="font-size:11px; font-weight:700; color:#374151; margin-bottom:6px;">Preview Bukti Dukung (Timestamp, Lokasi & Koordinat)</div>
+                   <img src="${matchPreview[1]}" alt="Preview Bukti Dukung" />
+                 </div>`
+              : '';
+            const ketBersih = rawKet
+              .replace(/\|?\s*BuktiPreview:\s*data:image\/[^|\s]+/gi, '')
+              .replace(/^\s*\|\s*|\s*\|\s*$/g, '')
+              .trim();
+
+            return `
+            <div class="log-card">
+              <div class="log-top">
+                <span>${it.namaLengkap} (${it.jenis})</span>
+                <span>${it.tanggal}</span>
+              </div>
+              <div style="font-size:12px; margin-bottom:6px;">
+                Jam: <b>${it.jamMasuk || '-'}</b> | Skor: <b>${it.skorMasuk + it.skorKeluar}</b>
+              </div>
+              ${it.koordinat && it.koordinat !== '-' ? `<div style="font-size:11px; color:#374151; margin-bottom:4px;">Koordinat Log: <b>${it.koordinat}</b></div>` : ''}
+              ${ketBersih ? `<div style="font-size:11px; color:#374151; margin-bottom:6px;">Ket: ${ketBersih}</div>` : ''}
+              ${previewHtml}
+              <div style="display:flex; gap:8px;">
+                <button class="btn-sm" style="background:var(--success);" onclick="aksiValidasi('${it.idLog}', 'VALID')">Setujui (Valid)</button>
+                <button class="btn-sm" style="background:var(--danger);" onclick="aksiValidasi('${it.idLog}', 'DITOLAK')">Tolak</button>
+              </div>
+            </div>`;
+          })
+          .join('');
+      } catch (err) {
+        showToast('Gagal memuat validasi: ' + err.message);
+      }
+    }
+
+    async function aksiValidasi(idLog, keputusan) {
+      try {
+        const res = await runServer('validasiAbsensiAdmin', currentUser.idPerangkat, idLog, keputusan);
+        showToast(res.message);
+        loadValidasiAdmin();
+      } catch (err) {
+        showToast('Gagal validasi: ' + err.message);
+      }
+    }
+
+    function renderProfil() {
+      const p = (currentDashboard && currentDashboard.pengaturan) || {};
+      const el = document.getElementById('profilDetail');
+      el.innerHTML = `
+        <div><b>Nama Lengkap:</b> ${currentUser.namaLengkap}</div>
+        <div><b>Jabatan:</b> ${currentUser.jabatan}</div>
+        <div><b>ID Perangkat:</b> ${currentUser.idPerangkat}</div>
+        <div><b>NIK / NIPD:</b> ${currentUser.nikNipd || '-'}</div>
+        <div><b>Role:</b> ${currentUser.role}</div>
+        <hr style="margin:10px 0; border:none; border-top:1px solid var(--border);" />
+        <div><b>Desa:</b> ${p.namaDesa || '-'}</div>
+        <div><b>Kecamatan:</b> ${p.kecamatan || '-'}</div>
+        <div><b>Kabupaten:</b> ${p.kabupaten || '-'}</div>
+        <div><b>Radius Kantor:</b> ${p.radiusMeter || 150} meter</div>
+        <div><b>Jam Pulang Resmi:</b> ${p.jamPulangResmi || '16:00'}</div>
+      `;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      terapkanLogoPemda('Gorontalo Utara');
+      initFilterRekapPeriode();
+      const saved = loadSession();
+      if (saved && saved.idPerangkat) {
+        currentUser = saved;
+        onAuthenticated();
+      } else {
+        loadDaftarLogin();
+      }
+    });
+  </script>
+</body>
+</html>
