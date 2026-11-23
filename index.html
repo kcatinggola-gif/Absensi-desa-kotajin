@@ -24,9 +24,9 @@
       --text: #1f2937;
       --muted: #6b7280;
       --border: #e5e7eb;
-      --success: #2e7d32;
-      --warning: #ed6c02;
-      --danger: #d32f2f;
+      --success: #16a34a;
+      --warning: #eab308;
+      --danger: #dc2626;
       --disabled: #9ca3af;
     }
     * {
@@ -273,28 +273,19 @@
       font-weight: 700;
       color: var(--muted);
       margin-top: 4px;
+      line-height: 1.45;
     }
-    .rekap-logo-banner {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 12px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #ffffff;
-    }
-    .rekap-logo-banner img {
-      width: 26px;
-      height: 30px;
-      object-fit: contain;
-    }
-    .rekap-logo-text {
+    .rekap-periode-line {
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--text);
-      line-height: 1.3;
+      margin-top: 4px;
+    }
+    .rekap-efektif-line {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
     }
     .print-actions-box {
       margin-bottom: 12px;
@@ -327,21 +318,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
       border-bottom: 2px solid #1f2937;
       padding-bottom: 8px;
       margin-bottom: 10px;
       text-align: center;
     }
-    .rekap-kop-box img {
-      width: 34px;
-      height: 38px;
-      object-fit: contain;
-    }
     .rekap-kop-title {
       font-size: 11px;
       font-weight: 800;
-      line-height: 1.3;
+      line-height: 1.35;
       text-transform: uppercase;
     }
     table.rekap-matrix {
@@ -382,6 +367,59 @@
       font-weight: 700;
       text-decoration: underline;
     }
+    .rekap-bar-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #ffffff;
+    }
+    .rekap-bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .rekap-bar-nama {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .rekap-bar-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .rekap-bar-pct-label {
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .rekap-bar-track {
+      width: 100%;
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .rekap-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+    .bar-merah {
+      background: #dc2626;
+    }
+    .bar-kuning {
+      background: #eab308;
+    }
+    .bar-hijau {
+      background: #16a34a;
+    }
+    .pct-merah { color: #dc2626; }
+    .pct-kuning { color: #ca8a04; }
+    .pct-hijau { color: #16a34a; }
     .summary-box {
       border: 1px solid #e5b8b8;
       border-radius: 8px;
@@ -567,21 +605,6 @@
       object-fit: contain;
       border: 1px solid #d1d5db;
     }
-    .rekap-item {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .rekap-pct {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--primary);
-      text-align: right;
-    }
     .btn-sm {
       padding: 6px 10px;
       border-radius: 6px;
@@ -699,16 +722,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
         border-bottom: 2px solid #000000;
         padding-bottom: 8px;
         margin-bottom: 10px;
         text-align: center;
-      }
-      .print-kop img {
-        width: 40px;
-        height: 46px;
-        object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
         font-size: 12px;
@@ -1092,14 +1109,10 @@
 
     <!-- HALAMAN REKAP ABSEN -->
     <section class="page" id="page-rekap">
-      <div class="rekap-logo-banner" id="rekapLogoBanner">
-        <img id="rekapLogoImg" alt="Logo Kabupaten Gorontalo Utara" />
-        <div class="rekap-logo-text" id="rekapLogoTitle">Pemerintah Kabupaten Gorontalo Utara</div>
-      </div>
-
       <div class="screen-heading">
         <h2>REKAP ABSEN BULANAN</h2>
-        <div class="user-line" id="rekapPeriodeInfo">-</div>
+        <div class="rekap-periode-line" id="rekapPeriodeInfo">Periode -</div>
+        <div class="rekap-efektif-line" id="rekapHariEfektifInfo">Hari Efektif: -</div>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
@@ -1289,13 +1302,6 @@
       const hasLogo = Boolean(LOGO_GORONTALO_UTARA_BASE64 && LOGO_GORONTALO_UTARA_BASE64.trim());
       const hdrImg = document.getElementById('hdrLogoImg');
       const hdrFb = document.getElementById('hdrLogoFallback');
-      const rekapBanner = document.getElementById('rekapLogoBanner');
-      const rekapImg = document.getElementById('rekapLogoImg');
-      const rekapTitle = document.getElementById('rekapLogoTitle');
-
-      if (rekapTitle && kabupatenNama) {
-        rekapTitle.textContent = `Pemerintah Kabupaten ${kabupatenNama}`;
-      }
 
       if (hasLogo) {
         sinkronkanIconAplikasi(LOGO_GORONTALO_UTARA_BASE64.trim());
@@ -1306,14 +1312,9 @@
         if (hdrFb) {
           hdrFb.style.display = 'none';
         }
-        if (rekapImg && rekapBanner) {
-          rekapImg.src = LOGO_GORONTALO_UTARA_BASE64;
-          rekapBanner.style.display = 'flex';
-        }
       } else {
         if (hdrImg) hdrImg.style.display = 'none';
         if (hdrFb) hdrFb.style.display = 'flex';
-        if (rekapBanner) rekapBanner.style.display = 'none';
       }
     }
 
@@ -2242,6 +2243,17 @@
       return formatSimbolRekap(kode);
     }
 
+    function getWarnaPersentase_(pct) {
+      const val = Number(pct || 0);
+      if (val < 50) {
+        return { bar: 'bar-merah', text: 'pct-merah' };
+      }
+      if (val < 80) {
+        return { bar: 'bar-kuning', text: 'pct-kuning' };
+      }
+      return { bar: 'bar-hijau', text: 'pct-hijau' };
+    }
+
     function renderTabelRekapVisual(d) {
       const wrap = document.getElementById('rekapTabelVisual');
       if (!wrap) return;
@@ -2251,7 +2263,6 @@
       }
 
       const p = d.pengaturan || {};
-      const kabUpper = String(p.kabupaten || 'GORONTALO UTARA').toUpperCase();
       const kecUpper = String(p.kecamatan || 'ATINGGOLA').toUpperCase();
       const desaTitle = String(p.namaDesa || 'Monggupo').trim();
       const desaUpper = desaTitle.toUpperCase();
@@ -2284,16 +2295,10 @@
         })
         .join('');
 
-      const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Daerah" />`
-        : '';
-
       wrap.innerHTML = `
         <div class="rekap-table-scroll">
           <div class="rekap-kop-box">
-            ${logoHtml}
             <div class="rekap-kop-title">
-              <div>PEMERINTAH KABUPATEN ${kabUpper}</div>
               <div>KECAMATAN ${kecUpper}</div>
               <div>DESA ${desaUpper}</div>
             </div>
@@ -2355,7 +2360,8 @@
       const tahunVal = document.getElementById('rekapTahunSelect').value;
       const yearMonthParam = bulanVal && tahunVal ? `${tahunVal}-${bulanVal}` : null;
 
-      document.getElementById('rekapPeriodeInfo').textContent = 'Memuat data rekap periode...';
+      document.getElementById('rekapPeriodeInfo').textContent = 'Periode: Memuat...';
+      document.getElementById('rekapHariEfektifInfo').textContent = 'Hari Efektif: -';
 
       try {
         const res = await runServer('apiGetRekapBulanan', yearMonthParam);
@@ -2366,41 +2372,39 @@
           perbaruiRunningTextDesa(d.pengaturan.namaDesa);
         }
         renderTabelRekapVisual(d);
+
         document.getElementById('rekapPeriodeInfo').textContent =
-          `Periode ${d.bulanTahun || '-'} • Hari Efektif: ${d.hariEfektif || 0} (Maks ${d.poinMaksimal || 0} pts)`;
+          `Periode ${d.bulanTahun || '-'}`;
+        document.getElementById('rekapHariEfektifInfo').textContent =
+          `Hari Efektif: ${d.hariEfektif || 0} (Maks ${d.poinMaksimal || 0} pts)`;
 
         const wrap = document.getElementById('rekapList');
         wrap.innerHTML = (d.rekap || [])
-          .map(
-            (r) => `
-            <div class="rekap-item">
-              <div>
-                <div style="font-size:13px; font-weight:700;">${r.namaLengkap}</div>
-                <div style="font-size:11px; color:var(--muted);">${r.jabatan} • Aktif ${r.hariAktif}/${r.hariEfektif} hr • Poin ${r.totalPoinValid}/${r.poinMaksimal}</div>
+          .map((r) => {
+            const pctNum = Math.max(0, Math.min(100, Number(r.persentase || 0)));
+            const warna = getWarnaPersentase_(pctNum);
+            return `
+            <div class="rekap-bar-card">
+              <div class="rekap-bar-header">
+                <div>
+                  <div class="rekap-bar-nama">${r.namaLengkap}</div>
+                  <div class="rekap-bar-meta">${r.jabatan} • Aktif ${r.hariAktif}/${r.hariEfektif} hr • Poin ${r.totalPoinValid}/${r.poinMaksimal}</div>
+                </div>
+                <div class="rekap-bar-pct-label ${warna.text}">${pctNum.toFixed(1)}%</div>
               </div>
-              <div class="rekap-pct">${Number(r.persentase || 0).toFixed(1)}%</div>
-            </div>`
-          )
+              <div class="rekap-bar-track">
+                <div class="rekap-bar-fill ${warna.bar}" style="width:${pctNum}%;"></div>
+              </div>
+            </div>`;
+          })
           .join('');
       } catch (err) {
         showToast('Gagal memuat rekap: ' + err.message);
       }
     }
 
-    function cetakDokumenRekap() {
-      const d = currentRekapData;
-      if (!d || !d.rekap) {
-        showToast('Data rekap belum siap.');
-        return;
-      }
-
-      const styleTag = document.getElementById('dynamicPrintPageStyle');
-      if (styleTag) {
-        styleTag.textContent = '@page { margin: 30mm 20mm 30mm 20mm; }';
-      }
-
+    function susunKontenCetakHtml_(d) {
       const p = d.pengaturan || {};
-      const kabUpper = String(p.kabupaten || 'GORONTALO UTARA').toUpperCase();
       const kecUpper = String(p.kecamatan || 'ATINGGOLA').toUpperCase();
       const desaTitle = String(p.namaDesa || 'Monggupo').trim();
       const desaUpper = desaTitle.toUpperCase();
@@ -2433,18 +2437,12 @@
         })
         .join('');
 
-      const logoHtml = LOGO_GORONTALO_UTARA_BASE64
-        ? `<img src="${LOGO_GORONTALO_UTARA_BASE64}" alt="Logo Kabupaten Gorontalo Utara" />`
-        : '';
-
       const namaKades = p.namaKepalaDesa || '_______________________';
       const namaSekdes = p.namaSekretarisDesa || '_______________________';
 
-      document.getElementById('printArea').innerHTML = `
+      return `
         <div class="print-kop">
-          ${logoHtml}
           <div class="print-kop-text">
-            <div>PEMERINTAH KABUPATEN ${kabUpper}</div>
             <div>KECAMATAN ${kecUpper}</div>
             <div>DESA ${desaUpper}</div>
           </div>
@@ -2497,10 +2495,111 @@
             <div class="print-ttd-nama">${namaSekdes}</div>
           </div>
         </div>`;
+    }
 
-      setTimeout(() => {
-        window.print();
-      }, 150);
+    function bukaJendelaCetakFallback_(d) {
+      const kontenBody = susunKontenCetakHtml_(d);
+      const htmlDoc = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Daftar Hadir ${d.bulanTahun || ''}</title>
+  <style>
+    @page { margin: 30mm 20mm 30mm 20mm; }
+    body { font-family: Arial, sans-serif; color: #000; background: #fff; margin: 0; padding: 12px; font-size: 10px; }
+    .print-kop { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
+    .print-kop-text div:nth-child(1) { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .print-kop-text div:nth-child(2) { font-size: 13px; font-weight: 800; text-transform: uppercase; }
+    .print-judul { text-align: center; font-size: 11px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+    table.rekap-cetak { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    table.rekap-cetak th, table.rekap-cetak td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 7.5px; }
+    table.rekap-cetak th.col-nama, table.rekap-cetak td.col-nama,
+    table.rekap-cetak th.col-jabatan, table.rekap-cetak td.col-jabatan { text-align: left; padding-left: 4px; white-space: nowrap; }
+    .tanda-centang { color: #15803d; font-weight: 800; }
+    .sym-sakit { color: #d97706; font-weight: 800; }
+    .sym-izin { color: #2563eb; font-weight: 800; }
+    .sym-alpa { color: #dc2626; font-weight: 800; }
+    .print-footer-wrap { margin-top: 8px; font-size: 9.5px; page-break-inside: avoid; }
+    .print-legenda { line-height: 1.5; }
+    .print-ttd-grid { display: flex; justify-content: space-between; gap: 24px; margin-top: 14px; text-align: center; font-size: 10px; page-break-inside: avoid; }
+    .print-ttd-box { flex: 1; }
+    .print-ttd-nama { margin-top: 42px; font-weight: 800; text-decoration: underline; }
+    .no-print-bar { text-align: center; margin-bottom: 12px; }
+    @media print { .no-print-bar { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <button onclick="window.print()" style="padding:8px 16px;font-weight:bold;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
+  </div>
+  ${kontenBody}
+  <script>
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        try { window.print(); } catch (e) {}
+      }, 200);
+    });
+  <\/script>
+</body>
+</html>`;
+
+      try {
+        const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const win = window.open(url, '_blank');
+        if (!win) {
+          showToast('Izinkan pop-up / buka di browser eksternal untuk menyimpan PDF.');
+        }
+      } catch (e) {
+        showToast('Gagal membuka jendela cetak: ' + e.message);
+      }
+    }
+
+    async function cetakDokumenRekap() {
+      let d = currentRekapData;
+      if (!d || !d.rekap) {
+        try {
+          setLoadingState(true, '⏳ Menyiapkan data rekap untuk dicetak...');
+          const bulanVal = document.getElementById('rekapBulanSelect').value;
+          const tahunVal = document.getElementById('rekapTahunSelect').value;
+          const yearMonthParam = bulanVal && tahunVal ? `${tahunVal}-${bulanVal}` : null;
+          const res = await runServer('apiGetRekapBulanan', yearMonthParam);
+          setLoadingState(false);
+          d = res && res.data;
+          currentRekapData = d;
+        } catch (err) {
+          setLoadingState(false);
+          showToast('Gagal menyiapkan data cetak: ' + err.message);
+          return;
+        }
+      }
+
+      if (!d || !d.rekap) {
+        showToast('Data rekap belum tersedia untuk dicetak.');
+        return;
+      }
+
+      const styleTag = document.getElementById('dynamicPrintPageStyle');
+      if (styleTag) {
+        styleTag.textContent = '@page { margin: 30mm 20mm 30mm 20mm; }';
+      }
+
+      const printEl = document.getElementById('printArea');
+      printEl.innerHTML = susunKontenCetakHtml_(d);
+
+      try {
+        if (typeof window.print === 'function') {
+          window.print();
+          const isWebView = /wv|webview/i.test(navigator.userAgent || '');
+          if (isWebView) {
+            bukaJendelaCetakFallback_(d);
+          }
+        } else {
+          bukaJendelaCetakFallback_(d);
+        }
+      } catch (err) {
+        bukaJendelaCetakFallback_(d);
+      }
     }
 
     async function loadValidasiAdmin() {
