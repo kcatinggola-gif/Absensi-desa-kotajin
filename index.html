@@ -13,7 +13,7 @@
   <title>Absensi Perangkat Desa</title>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-  <style id="dynamicPrintPageStyle">@page { size: portrait; margin: 10mm; }</style>
+  <style id="dynamicPrintPageStyle">@page { margin: 30mm 20mm 30mm 20mm; }</style>
   <style>
     :root {
       color-scheme: light;
@@ -52,7 +52,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: #ffffff;
       border-bottom: 1px solid var(--border);
       position: sticky;
@@ -62,26 +62,26 @@
     .brand-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
     .hdr-logo {
-      width: 36px;
-      height: 40px;
+      width: 28px;
+      height: 32px;
       object-fit: contain;
       border-radius: 4px;
       display: none;
     }
     .emblem {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
       background: var(--primary);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 12px;
     }
     .region-title {
       font-size: 12px;
@@ -254,16 +254,16 @@
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 8px;
+      padding: 8px 12px;
       margin-bottom: 12px;
       border: 1px solid var(--border);
       border-radius: 10px;
       background: #fafafa;
     }
     .rekap-logo-banner img {
-      width: 42px;
-      height: 48px;
+      width: 32px;
+      height: 36px;
       object-fit: contain;
     }
     .rekap-logo-text {
@@ -285,29 +285,20 @@
       margin-bottom: 8px;
       color: var(--text);
     }
-    .print-btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .btn-orient {
-      padding: 10px 12px;
+    .btn-cetak-tunggal {
+      width: 100%;
+      padding: 11px 14px;
       border: none;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       color: #ffffff;
+      background: var(--primary);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-    }
-    .btn-portrait {
-      background: var(--primary);
-    }
-    .btn-landscape {
-      background: #1f2937;
     }
     .rekap-table-scroll {
       width: 100%;
@@ -329,8 +320,8 @@
       text-align: center;
     }
     .rekap-kop-box img {
-      width: 44px;
-      height: 50px;
+      width: 38px;
+      height: 44px;
       object-fit: contain;
     }
     .rekap-kop-title {
@@ -635,6 +626,31 @@
       min-height: 18px;
       margin-bottom: 12px;
     }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.65);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .loading-overlay.show {
+      display: flex;
+    }
+    .loading-box {
+      background: #ffffff;
+      color: #111827;
+      border-radius: 12px;
+      padding: 18px 22px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+      font-size: 13px;
+      font-weight: 700;
+    }
     #printArea {
       display: none;
     }
@@ -643,7 +659,7 @@
         background: #ffffff !important;
         padding-bottom: 0 !important;
       }
-      .app-container, .topbar, .bottom-nav, .toast, .scanner-modal {
+      .app-container, .topbar, .bottom-nav, .toast, .scanner-modal, .loading-overlay {
         display: none !important;
       }
       #printArea {
@@ -651,42 +667,42 @@
         width: 100%;
         color: #000000;
         background: #ffffff;
-        padding: 4px 6px;
+        padding: 0;
         font-size: 10px;
       }
       .print-kop {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 14px;
+        gap: 12px;
         border-bottom: 2px solid #000000;
         padding-bottom: 8px;
         margin-bottom: 10px;
         text-align: center;
       }
       .print-kop img {
-        width: 56px;
-        height: 64px;
+        width: 44px;
+        height: 50px;
         object-fit: contain;
       }
       .print-kop-text div:nth-child(1) {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
       }
       .print-kop-text div:nth-child(2) {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
       }
       .print-kop-text div:nth-child(3) {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         text-transform: uppercase;
       }
       .print-judul {
         text-align: center;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 800;
         margin-bottom: 8px;
         text-transform: uppercase;
@@ -706,7 +722,7 @@
         border: 1px solid #000000;
         padding: 3px 2px;
         text-align: center;
-        font-size: 8px;
+        font-size: 7.5px;
       }
       table.rekap-cetak td.col-nama,
       table.rekap-cetak th.col-nama {
@@ -754,7 +770,7 @@
         flex: 1;
       }
       .print-ttd-nama {
-        margin-top: 46px;
+        margin-top: 42px;
         font-weight: 800;
         text-decoration: underline;
       }
@@ -802,13 +818,13 @@
       width: calc(100% - 24px);
       background: #111827;
       color: #ffffff;
-      padding: 11px 14px;
+      padding: 12px 14px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
-      z-index: 70;
+      z-index: 90;
       display: none;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     }
     .toast.show {
       display: block;
@@ -830,6 +846,10 @@
     </div>
 
     <div class="toast" id="toastBox"></div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-box" id="loadingText">⏳ Sedang memproses absensi...</div>
+    </div>
 
     <!-- MODAL KAMERA SCAN BARCODE / QR -->
     <div class="scanner-modal" id="scannerModal">
@@ -1076,15 +1096,10 @@
       </div>
 
       <div class="print-actions-box">
-        <div class="print-actions-title">🖨️ Cetak / Simpan Dokumen PDF Daftar Hadir</div>
-        <div class="print-btn-row">
-          <button type="button" class="btn-orient btn-portrait" onclick="cetakDokumenRekap('portrait')">
-            📄 Cetak Portrait
-          </button>
-          <button type="button" class="btn-orient btn-landscape" onclick="cetakDokumenRekap('landscape')">
-            🖼️ Cetak Landscape
-          </button>
-        </div>
+        <div class="print-actions-title">🖨️ Cetak / Simpan Dokumen PDF Daftar Hadir (Margin 3-3-2-2)</div>
+        <button type="button" class="btn-cetak-tunggal" onclick="cetakDokumenRekap()">
+          🖨️ Cetak / Simpan PDF
+        </button>
       </div>
 
       <div id="rekapTabelVisual"></div>
@@ -1131,15 +1146,25 @@
   <script>
     const SESSION_KEY = 'absen_desa_session_v1';
     const LOGO_GORONTALO_UTARA_BASE64 = 'https://lh3.googleusercontent.com/d/1LEasXy8v_54DofJ-fLy-_o7_laQ7WwDI';
-    const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzOtFK7tGJYqmy658C9l0CbmlSyTNwBXblBWRuO6CGwqBH1R8_aqASIX_X8ATeQoRWU/exec';
+    const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwO14SVm_M522GztqnA8UlEw3gHoI3CwHrVsoMi1bGRvieXV7OgJ73uAZuakoAMHubbiA/exec';
 
-    let KODE_BERSAMA_ABSEN = 'ABSEN-DESA-02';
+    let KODE_BERSAMA_ABSEN = 'ABSEN-DESA-01';
     let currentUser = null;
     let currentDashboard = null;
     let currentRekapData = null;
     let html5QrCode = null;
     let isScanning = false;
+    let isSubmittingScan = false;
     let aksiScannerAktif = { aksi: 'MASUK', targetIdPerangkat: '', keterangan: '' };
+
+    function setLoadingState(show, text = '⏳ Sedang memproses absensi...') {
+      const overlay = document.getElementById('loadingOverlay');
+      const label = document.getElementById('loadingText');
+      if (label) label.textContent = text;
+      if (overlay) {
+        overlay.classList.toggle('show', Boolean(show));
+      }
+    }
 
     function updateStatusFoto(inputId, labelId) {
       const inp = document.getElementById(inputId);
@@ -1256,7 +1281,7 @@
       const box = document.getElementById('toastBox');
       box.textContent = msg;
       box.classList.add('show');
-      setTimeout(() => box.classList.remove('show'), 3600);
+      setTimeout(() => box.classList.remove('show'), 4200);
     }
 
     function saveSession(user) {
@@ -1339,7 +1364,9 @@
         return;
       }
       try {
+        setLoadingState(true, '⏳ Memeriksa akun & PIN...');
         const res = await runServer('loginPerangkat', idPerangkat, pin);
+        setLoadingState(false);
         if (!res.success) {
           showToast(res.message);
           return;
@@ -1348,6 +1375,7 @@
         document.getElementById('loginPin').value = '';
         onAuthenticated();
       } catch (err) {
+        setLoadingState(false);
         showToast('Kesalahan login: ' + err.message);
       }
     }
@@ -1723,7 +1751,9 @@
     }
 
     function ambilLokasiDanKirim(targetIdPerangkat, aksi, keterangan, kodeScan = '', lampiran = null, presetCoords = null) {
-      showToast('Mengambil lokasi & mengirim bukti...');
+      const labelJenis = aksi === 'KELUAR' ? 'absen keluar' : aksi === 'MASUK' ? 'absen masuk' : 'absensi';
+      setLoadingState(true, `⏳ Sedang memproses ${labelJenis} & lokasi...`);
+
       const kirim = async (lat, lng) => {
         try {
           const res = await runServer('prosesAbsensi', {
@@ -1736,10 +1766,26 @@
             lat,
             lng
           });
-          showToast(res.message);
-          refreshDashboard();
+          setLoadingState(false);
+
+          if (res.success) {
+            const konfirmasiBaku =
+              aksi === 'MASUK'
+                ? `✅ Absen masuk berhasil! ${res.message}`
+                : aksi === 'KELUAR'
+                ? `✅ Absen keluar berhasil! ${res.message}`
+                : `✅ ${res.message}`;
+            showToast(konfirmasiBaku);
+          } else {
+            showToast(`⚠️ ${res.message}`);
+          }
+
+          await refreshDashboard();
         } catch (err) {
+          setLoadingState(false);
           showToast('Gagal mengirim absensi: ' + err.message);
+        } finally {
+          isSubmittingScan = false;
         }
       };
 
@@ -1768,6 +1814,7 @@
         } catch (e) {}
         isScanning = false;
       }
+      isSubmittingScan = false;
     }
 
     function bacaQrDenganCanvas(file) {
@@ -1811,7 +1858,7 @@
 
     async function pindaiDariFotoInput(event) {
       const file = event && event.target && event.target.files && event.target.files[0];
-      if (!file) return;
+      if (!file || isSubmittingScan) return;
 
       const statusEl = document.getElementById('scannerStatus');
       const modal = document.getElementById('scannerModal');
@@ -1853,7 +1900,14 @@
         return;
       }
 
-      statusEl.textContent = `Kode terverifikasi (${hasil}). Mengirim absensi...`;
+      isSubmittingScan = true;
+      statusEl.textContent = '⏳ Kode terverifikasi. Sedang memproses absensi...';
+      try {
+        if (html5QrCode && isScanning) {
+          await html5QrCode.stop();
+          isScanning = false;
+        }
+      } catch (e) {}
       modal.classList.remove('show');
       ambilLokasiDanKirim(
         aksiScannerAktif.targetIdPerangkat,
@@ -1864,6 +1918,7 @@
     }
 
     async function bukaScannerUntukAksi(aksi, targetIdPerangkat, keterangan) {
+      if (isSubmittingScan) return;
       setAksiScannerAktif(aksi, targetIdPerangkat, keterangan);
 
       if (typeof Html5Qrcode === 'undefined') {
@@ -1893,14 +1948,15 @@
           { facingMode: 'environment' },
           { fps: 10, qrbox: { width: 220, height: 220 } },
           async (decodedText) => {
-            if (!isScanning) return;
+            if (!isScanning || isSubmittingScan) return;
             const hasil = String(decodedText || '').trim();
             if (hasil !== KODE_BERSAMA_ABSEN) {
               statusEl.textContent = `Kode "${hasil}" tidak sesuai. Arahkan ke kode bersama kantor desa.`;
               return;
             }
             isScanning = false;
-            statusEl.textContent = `Kode terverifikasi (${hasil}). Mengirim ${labelAksi}...`;
+            isSubmittingScan = true;
+            statusEl.textContent = `⏳ Kode terverifikasi (${hasil}). Memproses ${labelAksi}...`;
             try { await html5QrCode.stop(); } catch (e) {}
             modal.classList.remove('show');
             ambilLokasiDanKirim(targetIdPerangkat, aksi, keterangan, hasil);
@@ -1933,7 +1989,7 @@
       }
 
       try {
-        showToast('Mengambil detail lokasi & menyiapkan foto...');
+        setLoadingState(true, '⏳ Mengambil lokasi & menyiapkan bukti foto...');
         const coordsInfo = await dapatkanKoordinatSaatIni_();
         const lampiran = await siapkanLampiranFile(file, coordsInfo);
         ambilLokasiDanKirim(currentUser.idPerangkat, 'TUGAS_LUAR', ket, '', lampiran, coordsInfo);
@@ -1941,6 +1997,7 @@
         if (fotoInput) fotoInput.value = '';
         updateStatusFoto('fotoTugasLuar', 'statusFotoTugasLuar');
       } catch (err) {
+        setLoadingState(false);
         showToast(err.message || 'Gagal menyiapkan bukti foto tugas luar.');
       }
     }
@@ -1956,7 +2013,7 @@
       }
 
       try {
-        showToast('Mengambil detail lokasi & menyiapkan foto...');
+        setLoadingState(true, '⏳ Mengambil lokasi & menyiapkan bukti foto...');
         const coordsInfo = await dapatkanKoordinatSaatIni_();
         const lampiran = await siapkanLampiranFile(file, coordsInfo);
         ambilLokasiDanKirim(currentUser.idPerangkat, aksi, ket, '', lampiran, coordsInfo);
@@ -1964,6 +2021,7 @@
         if (fileInput) fileInput.value = '';
         updateStatusFoto('lampiranSakitIzin', 'statusFotoSakitIzin');
       } catch (err) {
+        setLoadingState(false);
         showToast(err.message || 'Gagal menyiapkan bukti foto.');
       }
     }
@@ -2168,24 +2226,17 @@
       }
     }
 
-    function setOrientasiCetak(orientasi) {
-      const isLand = orientasi === 'landscape';
-      const styleTag = document.getElementById('dynamicPrintPageStyle');
-      if (styleTag) {
-        styleTag.textContent = isLand
-          ? '@page { size: landscape; margin: 8mm; }'
-          : '@page { size: portrait; margin: 10mm; }';
-      }
-    }
-
-    function cetakDokumenRekap(orientasi = 'portrait') {
+    function cetakDokumenRekap() {
       const d = currentRekapData;
       if (!d || !d.rekap) {
         showToast('Data rekap belum siap.');
         return;
       }
 
-      setOrientasiCetak(orientasi);
+      const styleTag = document.getElementById('dynamicPrintPageStyle');
+      if (styleTag) {
+        styleTag.textContent = '@page { margin: 30mm 20mm 30mm 20mm; }';
+      }
 
       const p = d.pengaturan || {};
       const kabUpper = String(p.kabupaten || 'GORONTALO UTARA').toUpperCase();
@@ -2194,8 +2245,8 @@
       const desaUpper = desaTitle.toUpperCase();
       const jumlahHari = Number(d.jumlahHariBulan || 30);
       const tglUnduh = formatTanggalUnduhIndo(new Date());
-      const cellFontPx = orientasi === 'landscape' ? '8px' : '6.8px';
-      const dayPad = orientasi === 'landscape' ? '2px 1.5px' : '2px 1px';
+      const cellFontPx = '7px';
+      const dayPad = '2px 1px';
 
       let dayHeaders = '';
       for (let day = 1; day <= jumlahHari; day++) {
@@ -2271,7 +2322,7 @@
             <div><span class="sym-alpa">A</span> : Alpa / Tidak Absen</div>
             <div><b>%</b> : Persentase Poin Valid</div>
           </div>
-          <div>Orientasi: ${orientasi === 'landscape' ? 'Landscape' : 'Portrait'}</div>
+          <div>Margin Halaman: Atas 3 cm, Bawah 3 cm, Kiri 2 cm, Kanan 2 cm</div>
         </div>
 
         <div class="print-ttd-grid">
@@ -2347,10 +2398,13 @@
 
     async function aksiValidasi(idLog, keputusan) {
       try {
+        setLoadingState(true, '⏳ Menyimpan status validasi...');
         const res = await runServer('validasiAbsensiAdmin', currentUser.idPerangkat, idLog, keputusan);
+        setLoadingState(false);
         showToast(res.message);
         loadValidasiAdmin();
       } catch (err) {
+        setLoadingState(false);
         showToast('Gagal validasi: ' + err.message);
       }
     }
