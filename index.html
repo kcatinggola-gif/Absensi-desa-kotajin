@@ -2518,78 +2518,6 @@
         </div>`;
     }
 
-    function bukaJendelaCetakFallback_(d) {
-      const kontenBody = susunKontenCetakHtml_(d);
-      const htmlDoc = `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daftar Hadir ${d.bulanTahun || ''}</title>
-  <style>
-    @page { margin: 30mm 20mm 30mm 20mm; }
-    body { font-family: Arial, sans-serif; color: #000; background: #fff; margin: 0; padding: 12px; font-size: 10px; }
-    .print-kop { display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px; }
-    .print-kop img { width: 40px; height: 46px; object-fit: contain; }
-    .print-kop-text div:nth-child(1) { font-size: 12px; font-weight: 800; text-transform: uppercase; }
-    .print-kop-text div:nth-child(2) { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .print-kop-text div:nth-child(3) { font-size: 13px; font-weight: 800; text-transform: uppercase; }
-    .print-judul { text-align: center; font-size: 11px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
-    .print-table-wrap { width: 100%; overflow-x: auto; }
-    table.rekap-cetak { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-    table.rekap-cetak th, table.rekap-cetak td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 7.5px; }
-    table.rekap-cetak th.col-nama, table.rekap-cetak td.col-nama,
-    table.rekap-cetak th.col-jabatan, table.rekap-cetak td.col-jabatan { text-align: left; padding-left: 4px; white-space: nowrap; }
-    .tanda-centang { color: #15803d; font-weight: 800; }
-    .sym-sakit { color: #d97706; font-weight: 800; }
-    .sym-izin { color: #2563eb; font-weight: 800; }
-    .sym-alpa { color: #dc2626; font-weight: 800; }
-    .print-footer-wrap { margin-top: 8px; font-size: 9.5px; page-break-inside: avoid; }
-    .print-legenda { line-height: 1.5; }
-    .print-ttd-grid { display: flex; justify-content: space-between; gap: 24px; margin-top: 14px; text-align: center; font-size: 10px; page-break-inside: avoid; }
-    .print-ttd-box { flex: 1; }
-    .print-ttd-nama { margin-top: 42px; font-weight: 800; text-decoration: underline; }
-    .no-print-bar { text-align: center; margin-bottom: 12px; }
-    @media print { .no-print-bar { display: none; } }
-  </style>
-</head>
-<body>
-  <div class="no-print-bar">
-    <button type="button" onclick="window.print()" style="padding:10px 18px;font-weight:bold;background:#c62828;color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨️ Cetak / Simpan PDF</button>
-  </div>
-  ${kontenBody}
-  <script>
-    window.addEventListener('load', function () {
-      setTimeout(function () {
-        try { window.print(); } catch (e) {}
-      }, 300);
-    });
-  <\/script>
-</body>
-</html>`;
-
-      try {
-        const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const win = window.open(url, '_blank');
-        if (!win) {
-          showToast('Pop-up diblokir. Izinkan pop-up atau gunakan menu Cetak di browser.');
-          setTimeout(() => {
-            try { URL.revokeObjectURL(url); } catch (e) {}
-          }, 15000);
-          return false;
-        }
-        showToast('📄 Dokumen cetak dibuka. Pilih "Simpan sebagai PDF" / Cetak.');
-        setTimeout(() => {
-          try { URL.revokeObjectURL(url); } catch (e) {}
-        }, 60000);
-        return true;
-      } catch (e) {
-        showToast('Gagal membuka jendela cetak: ' + e.message);
-        return false;
-      }
-    }
-
     async function cetakDokumenRekap() {
       try {
         let d = currentRekapData;
@@ -2621,10 +2549,13 @@
           printEl.innerHTML = susunKontenCetakHtml_(d);
         }
 
-        const terbukaDiTabBaru = bukaJendelaCetakFallback_(d);
-        if (!terbukaDiTabBaru && typeof window.print === 'function') {
-          window.print();
-        }
+        setTimeout(() => {
+          try {
+            window.print();
+          } catch (err) {
+            showToast('Gagal membuka dialog cetak: ' + (err && err.message ? err.message : err));
+          }
+        }, 100);
       } catch (err) {
         setLoadingState(false);
         showToast('Gagal menyiapkan data cetak: ' + (err && err.message ? err.message : err));
