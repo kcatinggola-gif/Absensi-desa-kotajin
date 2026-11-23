@@ -665,6 +665,17 @@
       font-size: 13px;
       font-weight: 700;
     }
+    .profil-switch-box {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .profil-switch-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
     #printArea {
       display: none;
     }
@@ -903,12 +914,12 @@
       <div class="login-box">
         <div class="login-card">
           <h2>Masuk Absensi Perangkat</h2>
-          <p>Pilih nama perangkat desa terdaftar dan masukkan PIN Anda (cukup 1 kali di perangkat ini).</p>
+          <p>Pilih nama pengguna terdaftar dan masukkan PIN Anda (cukup 1 kali di perangkat ini).</p>
 
           <div class="form-group">
-            <label for="loginSelect">Nama Perangkat Desa</label>
+            <label for="loginSelect">Pilih Nama Pengguna</label>
             <select id="loginSelect" class="form-control">
-              <option value="">Memuat daftar perangkat...</option>
+              <option value="">-- Pilih Nama Pengguna --</option>
             </select>
           </div>
 
@@ -1134,11 +1145,26 @@
       <div id="validasiList"></div>
     </section>
 
-    <!-- HALAMAN PROFIL -->
+    <!-- HALAMAN PROFIL PENGGUNA APLIKASI -->
     <section class="page" id="page-profil">
       <div class="login-card">
-        <h2 style="margin-bottom:12px; text-align:left;">Profil Perangkat Desa</h2>
+        <h2 style="margin-bottom:12px; text-align:left;">Profil Pengguna Aplikasi</h2>
         <div id="profilDetail" style="font-size:13px; line-height:1.7;"></div>
+
+        <div class="profil-switch-box">
+          <div class="profil-switch-title">Ganti / Masuk Pengguna dengan PIN</div>
+          <div class="form-group">
+            <label for="profilSelect">Pilih Nama Pengguna</label>
+            <select id="profilSelect" class="form-control">
+              <option value="">-- Pilih Nama Pengguna --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profilPin">PIN</label>
+            <input type="password" id="profilPin" class="form-control" placeholder="Masukkan PIN" />
+          </div>
+          <button type="button" class="btn-action btn-red" onclick="handleGantiPenggunaProfil()">Simpan & Gunakan Akun</button>
+        </div>
       </div>
     </section>
 
@@ -1171,6 +1197,7 @@
     let currentUser = null;
     let currentDashboard = null;
     let currentRekapData = null;
+    let daftarPenggunaCache = [];
     let html5QrCode = null;
     let isScanning = false;
     let isSubmittingScan = false;
@@ -1504,17 +1531,41 @@
       }
     }
 
-    async function loadDaftarLogin() {
-      try {
-        const res = await runServer('apiGetDaftarPerangkat');
-        const sel = document.getElementById('loginSelect');
-        sel.innerHTML = '<option value="">-- Pilih Nama Perangkat --</option>';
-        (res.data || []).forEach((u) => {
+    function isiDropdownPengguna(list) {
+      const users = Array.isArray(list) ? list : [];
+      daftarPenggunaCache = users;
+
+      const loginSel = document.getElementById('loginSelect');
+      if (loginSel) {
+        loginSel.innerHTML = '<option value="">-- Pilih Nama Pengguna --</option>';
+        users.forEach((u) => {
           const opt = document.createElement('option');
           opt.value = u.idPerangkat;
           opt.textContent = `${u.namaLengkap} (${u.jabatan})`;
-          sel.appendChild(opt);
+          loginSel.appendChild(opt);
         });
+      }
+
+      const profilSel = document.getElementById('profilSelect');
+      if (profilSel) {
+        const nilaiSebelumnya = (currentUser && currentUser.idPerangkat) || profilSel.value || '';
+        profilSel.innerHTML = '<option value="">-- Pilih Nama Pengguna --</option>';
+        users.forEach((u) => {
+          const opt = document.createElement('option');
+          opt.value = u.idPerangkat;
+          opt.textContent = `${u.namaLengkap} (${u.jabatan})`;
+          if (u.idPerangkat === nilaiSebelumnya) {
+            opt.selected = true;
+          }
+          profilSel.appendChild(opt);
+        });
+      }
+    }
+
+    async function loadDaftarLogin() {
+      try {
+        const res = await runServer('apiGetDaftarPerangkat');
+        isiDropdownPengguna(res.data || []);
       } catch (err) {
         showToast('Gagal memuat daftar: ' + err.message);
       }
@@ -1524,7 +1575,7 @@
       const idPerangkat = document.getElementById('loginSelect').value;
       const pin = document.getElementById('loginPin').value;
       if (!idPerangkat || !pin) {
-        showToast('Pilih nama perangkat dan isi PIN.');
+        showToast('Pilih nama pengguna dan isi PIN.');
         return;
       }
       try {
@@ -1541,6 +1592,31 @@
       } catch (err) {
         setLoadingState(false);
         showToast('Kesalahan login: ' + err.message);
+      }
+    }
+
+    async function handleGantiPenggunaProfil() {
+      const idPerangkat = document.getElementById('profilSelect').value;
+      const pin = document.getElementById('profilPin').value;
+      if (!idPerangkat || !pin) {
+        showToast('Pilih nama pengguna dan masukkan PIN.');
+        return;
+      }
+      try {
+        setLoadingState(true, '⏳ Memverifikasi pengguna & PIN...');
+        const res = await runServer('loginPerangkat', idPerangkat, pin);
+        setLoadingState(false);
+        if (!res.success) {
+          showToast(res.message);
+          return;
+        }
+        saveSession(res.user);
+        document.getElementById('profilPin').value = '';
+        showToast(`✅ Pengguna aktif diubah ke ${res.user.namaLengkap}.`);
+        onAuthenticated();
+      } catch (err) {
+        setLoadingState(false);
+        showToast('Gagal mengganti pengguna: ' + err.message);
       }
     }
 
@@ -1623,6 +1699,22 @@
         opt.textContent = `${t.namaLengkap} (${t.jabatan})`;
         temanSel.appendChild(opt);
       });
+
+      const gabunganPengguna = [];
+      const seenIds = {};
+      [...(data.daftarTeman || []), currentUser].forEach((u) => {
+        if (u && u.idPerangkat && !seenIds[u.idPerangkat]) {
+          seenIds[u.idPerangkat] = true;
+          gabunganPengguna.push(u);
+        }
+      });
+      if (gabunganPengguna.length > 0) {
+        isiDropdownPengguna(gabunganPengguna);
+      }
+
+      if (document.getElementById('page-profil').classList.contains('active')) {
+        renderProfil();
+      }
     }
 
     function getStatusBadge(statusVal, adaWaktu) {
@@ -2493,6 +2585,12 @@
         <div><b>Radius Kantor:</b> ${p.radiusMeter || 150} meter</div>
         <div><b>Jam Pulang Resmi:</b> ${p.jamPulangResmi || '16:00'}</div>
       `;
+
+      if (daftarPenggunaCache.length > 0) {
+        isiDropdownPengguna(daftarPenggunaCache);
+      } else {
+        loadDaftarLogin();
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
